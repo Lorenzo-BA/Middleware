@@ -17,6 +17,7 @@ func main() {
 		r.Route("/{id}", func(r chi.Router) {
 			r.Use(users.Ctx)
 			r.Get("/", users.GetUsers)
+			r.Put("/", users.UpdateUser)
 		})
 	})
 
@@ -30,7 +31,7 @@ func init() {
 		logrus.Fatalf("error while opening database : %s", err.Error())
 	}
 	schemes := []string{
-		`CREATE TABLE IF NOT EXISTS users (
+		`CREATE TABLE IF NOT EXISTS USERS (
 			id VARCHAR(255) PRIMARY KEY NOT NULL UNIQUE,
 			content VARCHAR(255) NOT NULL
 		);`,

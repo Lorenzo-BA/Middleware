@@ -38,7 +38,23 @@ func GetUserById(id uuid.UUID) (*models.User, error) {
 	if err != nil {
 		return nil, err
 	}
-	row := db.QueryRow("SELECT * FROM users WHERE id=?", id.String())
+	row := db.QueryRow("SELECT * FROM USERS WHERE id=?", id.String())
+	helpers.CloseDB(db)
+
+	var user models.User
+	err = row.Scan(&user.Id, &user.Content)
+	if err != nil {
+		return nil, err
+	}
+	return &user, err
+}
+
+func UpdateUserById(id uuid.UUID) (*models.User, error) {
+	db, err := helpers.OpenDB()
+	if err != nil {
+		return nil, err
+	}
+	row := db.QueryRow("UPDATE USERS SET id = 1, content = 'test'")
 	helpers.CloseDB(db)
 
 	var user models.User
