@@ -54,7 +54,9 @@ func UpdateUserById(id uuid.UUID) (*models.User, error) {
 	if err != nil {
 		return nil, err
 	}
-	row := db.QueryRow("UPDATE USERS SET id = 1, content = 'test'")
+
+	_, err = db.Exec("INSERT INTO USERS VALUES (?, 'test3')", id)
+	row := db.QueryRow("SELECT * FROM USERS WHERE id = ?", id)
 	helpers.CloseDB(db)
 
 	var user models.User
