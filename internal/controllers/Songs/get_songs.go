@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"github.com/sirupsen/logrus"
 	"middleware/example/internal/models"
-	"middleware/example/internal/services/collections"
+	"middleware/example/internal/services/Songs"
 	"net/http"
 )
 
@@ -17,7 +17,7 @@ import (
 // @Router       /Songs [get]
 func GetSongs(w http.ResponseWriter, _ *http.Request) {
 	// calling service
-	Song, err := collections.GetAllSongs()
+	Song, err := Songs.GetAllSongs()
 	if err != nil {
 		// logging error
 		logrus.Errorf("error : %s", err.Error())

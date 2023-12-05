@@ -4,7 +4,7 @@
     ],
     "swagger": "2.0",
     "info": {
-        "description": "API to manage collections.",
+        "description": "API to manage Songs.",
         "title": "middleware/example",
         "contact": {
             "name": "Justine Bachelard.",
@@ -14,20 +14,20 @@
     },
     "basePath": "/",
     "paths": {
-        "/collections": {
+        "/Songs": {
             "get": {
-                "description": "Get collections.",
+                "description": "Get Songs.",
                 "tags": [
-                    "collections"
+                    "Songs"
                 ],
-                "summary": "Get collections.",
+                "summary": "Get Songs.",
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/models.Collection"
+                                "$ref": "#/definitions/models.Song"
                             }
                         }
                     },
@@ -37,17 +37,17 @@
                 }
             }
         },
-        "/collections/{id}": {
+        "/Songs/{id}": {
             "get": {
                 "description": "Get a collection.",
                 "tags": [
-                    "collections"
+                    "Songs"
                 ],
                 "summary": "Get a collection.",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Collection UUID formatted ID",
+                        "description": "Song UUID formatted ID",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -57,7 +57,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.Collection"
+                            "$ref": "#/definitions/models.Song"
                         }
                     },
                     "422": {
@@ -71,9 +71,12 @@
         }
     },
     "definitions": {
-        "models.Collection": {
+        "models.Song": {
             "type": "object",
             "properties": {
+                "code": {
+                    "type": "integer"
+                },
                 "content": {
                     "type": "string"
                 },

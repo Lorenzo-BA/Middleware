@@ -31,7 +31,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/models.Collection"
+                                "$ref": "#/definitions/models.Song"
                             }
                         }
                     },
@@ -51,7 +51,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Collection UUID formatted ID",
+                        "description": "Song UUID formatted ID",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -61,7 +61,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.Collection"
+                            "$ref": "#/definitions/models.Song"
                         }
                     },
                     "422": {
@@ -75,9 +75,12 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "models.Collection": {
+        "models.Song": {
             "type": "object",
             "properties": {
+                "code": {
+                    "type": "integer"
+                },
                 "content": {
                     "type": "string"
                 },

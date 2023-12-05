@@ -1,7 +1,9 @@
 basePath: /
 definitions:
-  models.Collection:
+  models.Song:
     properties:
+      code:
+        type: integer
       content:
         type: string
       id:
@@ -15,7 +17,7 @@ info:
   title: middleware/example
   version: 1.0.0
 paths:
-  /collections:
+  /Songs:
     get:
       description: Get Songs.
       responses:
@@ -23,18 +25,18 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/models.Collection'
+              $ref: '#/definitions/models.Song'
             type: array
         "500":
           description: Something went wrong
       summary: Get Songs.
       tags:
       - Songs
-  /collections/{id}:
+  /Songs/{id}:
     get:
       description: Get a collection.
       parameters:
-      - description: Collection UUID formatted ID
+      - description: Song UUID formatted ID
         in: path
         name: id
         required: true
@@ -43,7 +45,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.Collection'
+            $ref: '#/definitions/models.Song'
         "422":
           description: Cannot parse id
         "500":

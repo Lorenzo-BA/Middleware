@@ -1,6 +1,7 @@
 package Songs
 
 import (
+	"fmt"
 	"github.com/gofrs/uuid"
 	"middleware/example/internal/helpers"
 	"middleware/example/internal/models"
@@ -56,7 +57,11 @@ func PostSongById(song models.Song) (*models.Song, error) {
 		return nil, err
 	}
 	randomUUID, err := uuid.NewV4()
-	_, _ = db.Exec("INSERT INTO Songs (id, content) values (?, ?)", randomUUID.String(), song.Content)
+	_, err = db.Exec("INSERT INTO Songs (id, content) values (?, ?)", randomUUID.String(), song.Content)
+	if err != nil {
+		return nil, err
+	}
+
 	PostSong := &models.Song{Id: &randomUUID, Content: song.Content}
 	helpers.CloseDB(db)
 
@@ -82,22 +87,26 @@ func PutSongById(song models.Song) (*models.Song, error) {
 	return PostSong, err
 }
 
-func DeletSongById(id uuid.UUID) ([]models.Song, error) {
+func DeleteSongById(id uuid.UUID) error {
 	db, err := helpers.OpenDB()
 	if err != nil {
-		return nil, err
+		return err
 	}
-	_, err = uuid.NewV4()
+	fmt.Print("tset5 \n")
+	//_, err = uuid.NewV4()
 	_, err = db.Exec("DELETE FROM Songs WHERE id=?", id.String())
-	rows, err := db.Query("SELECT * FROM Songs")
-	songs := []models.Song{}
+	if err != nil {
+		fmt.Println("Error deleting song:", err)
+		return err
+	}
+
 	helpers.CloseDB(db)
 
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	_ = rows.Close()
+	fmt.Print("tset6 \n")
 
-	return songs, err
+	return err
 }
