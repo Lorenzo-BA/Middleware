@@ -10,10 +10,16 @@ import (
 )
 
 func UpdateUser(w http.ResponseWriter, r *http.Request) {
+	
 	ctx := r.Context()
 	userId, _ := ctx.Value("userId").(uuid.UUID)
 
-	user, err := users.UpdateUserById(userId)
+	var user models.User
+	err := json.NewDecoder(r.Body).Decode(&user)
+
+	var userNew *models.User
+	userNew, err = users.UpdateUserById(user, userId)
+	
 	if err != nil {
 		logrus.Errorf("error : %s", err.Error())
 		customError, isCustom := err.(*models.CustomError)
@@ -28,7 +34,8 @@ func UpdateUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusOK)
-	body, _ := json.Marshal(user)
+	body, _ := json.Marshal(userNew)
 	_, _ = w.Write(body)
 	return
 }
+

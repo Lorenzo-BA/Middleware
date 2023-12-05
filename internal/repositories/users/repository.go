@@ -11,6 +11,7 @@ func GetAllUsers() ([]models.User, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	rows, err := db.Query("SELECT * FROM users")
 	helpers.CloseDB(db)
 	if err != nil {
@@ -49,14 +50,51 @@ func GetUserById(id uuid.UUID) (*models.User, error) {
 	return &user, err
 }
 
-func UpdateUserById(id uuid.UUID) (*models.User, error) {
+func UpdateUserById(user models.User, id uuid.UUID) (*models.User, error) {
 	db, err := helpers.OpenDB()
 	if err != nil {
 		return nil, err
 	}
 
-	_, err = db.Exec("INSERT INTO USERS VALUES (?, 'test3')", id)
+	_, err = db.Exec("UPDATE USERS SET content = ? WHERE ?", user.Content, id)
+	if err != nil {
+		return nil, err
+	}
 	row := db.QueryRow("SELECT * FROM USERS WHERE id = ?", id)
+	helpers.CloseDB(db)
+
+	err = row.Scan(&user.Id, &user.Content)
+	if err != nil {
+		return nil, err
+	}
+	return &user, err
+}
+
+func CreateUser(user models.User) (*models.User, error) {
+
+	db, err := helpers.OpenDB()
+	if err != nil {
+		return nil, err
+	}
+	randomUUID, err := uuid.NewV4()
+
+	_, err = db.Exec("INSERT INTO USERS (id, content) VALUES (?, ?)", randomUUID.String(), user.Content)
+    if err != nil {
+        return nil, err
+    }
+
+    createdUser := &models.User{Id: &randomUUID, Content: user.Content}
+	helpers.CloseDB(db)
+
+    return createdUser, nil
+}
+
+func DeleteUser(id uuid.UUID) (*models.User, error) {
+	db, err := helpers.OpenDB()
+	if err != nil {
+		return nil, err
+	}
+	row := db.QueryRow("DELETE FROM USERS WHERE id = ?", id.String())
 	helpers.CloseDB(db)
 
 	var user models.User
