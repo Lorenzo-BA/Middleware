@@ -33,7 +33,7 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.WriteHeader(http.StatusOK)
+	w.WriteHeader(http.StatusCreated)
 	body, _ := json.Marshal(newUser)
 	_, _ = w.Write(body)
 	return

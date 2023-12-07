@@ -15,7 +15,7 @@ func DeleteUser(w http.ResponseWriter, r *http.Request) {
 	userId, _ := ctx.Value("userId").(uuid.UUID)
 
 	err := users.DeleteUser(userId)
-	
+
 	if err != nil {
 		logrus.Errorf("error : %s", err.Error())
 		customError, isCustom := err.(*models.CustomError)
@@ -29,7 +29,7 @@ func DeleteUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.WriteHeader(http.StatusOK)
+	w.WriteHeader(http.StatusNoContent)
 	return
 }
 
