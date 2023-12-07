@@ -6,5 +6,5 @@ import (
 
 type User struct {
 	Id      *uuid.UUID `json:"id"`
-	Content string     `json:"content"`
+	Name string     `json:"name"`
 }

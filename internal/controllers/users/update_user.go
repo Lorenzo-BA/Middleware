@@ -17,8 +17,7 @@ func UpdateUser(w http.ResponseWriter, r *http.Request) {
 	var user models.User
 	err := json.NewDecoder(r.Body).Decode(&user)
 
-	var userNew *models.User
-	userNew, err = users.UpdateUserById(user, userId)
+	userNew, err := users.UpdateUser(user, userId)
 	
 	if err != nil {
 		logrus.Errorf("error : %s", err.Error())

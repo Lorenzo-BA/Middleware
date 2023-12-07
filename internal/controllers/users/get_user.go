@@ -9,20 +9,13 @@ import (
 	"net/http"
 )
 
-// GetCollection
-// @Tags         collections
-// @Summary      Get a collection.
-// @Description  Get a collection.
-// @Param        id           	path      string  true  "Collection UUID formatted ID"
-// @Success      200            {object}  models.Collection
-// @Failure      422            "Cannot parse id"
-// @Failure      500            "Something went wrong"
-// @Router       /collections/{id} [get]
+
 func GetUser(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userId, _ := ctx.Value("userId").(uuid.UUID)
 
 	user, err := users.GetUserById(userId)
+	
 	if err != nil {
 		logrus.Errorf("error : %s", err.Error())
 		customError, isCustom := err.(*models.CustomError)
