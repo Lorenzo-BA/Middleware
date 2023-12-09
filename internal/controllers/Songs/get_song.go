@@ -21,7 +21,6 @@ import (
 func GetSong(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	Song_Id, _ := ctx.Value("Song_Id").(uuid.UUID)
-
 	song, err := Songs.GetSongById(Song_Id)
 	if err != nil {
 		logrus.Errorf("error : %s", err.Error())

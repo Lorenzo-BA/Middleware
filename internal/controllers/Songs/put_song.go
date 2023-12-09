@@ -2,6 +2,7 @@ package Songs
 
 import (
 	"encoding/json"
+	"github.com/gofrs/uuid"
 	"github.com/sirupsen/logrus"
 	"middleware/example/internal/models"
 	"middleware/example/internal/repositories/Songs"
@@ -21,8 +22,9 @@ func PutSong(w http.ResponseWriter, r *http.Request) {
 	var song models.Song
 	var newsong *models.Song
 	err := json.NewDecoder(r.Body).Decode(&song)
-
-	newsong, err = Songs.PutSongById(song)
+	ctx := r.Context()
+	Song_Id, _ := ctx.Value("Song_Id").(uuid.UUID)
+	newsong, err = Songs.PutSongById(song, Song_Id)
 	if err != nil {
 		logrus.Errorf("error : %s", err.Error())
 		customError, isCustom := err.(*models.CustomError)

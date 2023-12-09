@@ -45,6 +45,7 @@ func GetSongById(id uuid.UUID) (*models.Song, error) {
 
 	var song models.Song
 	err = row.Scan(&song.Id, &song.Content)
+
 	if err != nil {
 		return nil, err
 	}
@@ -71,20 +72,22 @@ func PostSongById(song models.Song) (*models.Song, error) {
 	return PostSong, err
 }
 
-func PutSongById(song models.Song) (*models.Song, error) {
+func PutSongById(song models.Song, id uuid.UUID) (*models.Song, error) {
 	db, err := helpers.OpenDB()
 	if err != nil {
 		return nil, err
 	}
-	randomUUID, err := uuid.NewV4()
-	_, _ = db.Exec("INSERT INTO Songs (id, content) values (?, ?)", randomUUID.String(), song.Content)
-	PostSong := &models.Song{Id: &randomUUID, Content: song.Content}
-	helpers.CloseDB(db)
-
+	_, err = db.Exec("UPDATE Songs SET Content = ? WHERE id = ?", song.Content, id.String())
 	if err != nil {
 		return nil, err
 	}
-	return PostSong, err
+	row := db.QueryRow("SELECT * FROM Songs WHERE id = ?", id.String())
+	helpers.CloseDB(db)
+	err = row.Scan(&song.Id, &song.Content)
+	if err != nil {
+		return nil, err
+	}
+	return &song, err
 }
 
 func DeleteSongById(id uuid.UUID) error {
@@ -92,7 +95,6 @@ func DeleteSongById(id uuid.UUID) error {
 	if err != nil {
 		return err
 	}
-	fmt.Print("tset5 \n")
 	//_, err = uuid.NewV4()
 	_, err = db.Exec("DELETE FROM Songs WHERE id=?", id.String())
 	if err != nil {
@@ -105,8 +107,6 @@ func DeleteSongById(id uuid.UUID) error {
 	if err != nil {
 		return err
 	}
-
-	fmt.Print("tset6 \n")
 
 	return err
 }
