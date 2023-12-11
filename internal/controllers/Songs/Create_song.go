@@ -2,7 +2,6 @@ package Songs
 
 import (
 	"encoding/json"
-	"github.com/gofrs/uuid"
 	"github.com/sirupsen/logrus"
 	"middleware/example/internal/models"
 	"middleware/example/internal/repositories/Songs"
@@ -18,11 +17,12 @@ import (
 // @Failure      422            "Cannot parse id"
 // @Failure      500            "Something went wrong"
 // @Router       /Songs/{id} [get]
-func DeletSong(w http.ResponseWriter, r *http.Request) {
-	var _ models.Song
-	ctx := r.Context()
-	Song_Id, _ := ctx.Value("Song_Id").(uuid.UUID)
-	err := Songs.DeleteSongById(Song_Id)
+func CreateSong(w http.ResponseWriter, r *http.Request) {
+	var song models.Song
+	var newsong *models.Song
+	err := json.NewDecoder(r.Body).Decode(&song)
+
+	newsong, err = Songs.RequestCreateSong(song)
 	if err != nil {
 		logrus.Errorf("error : %s", err.Error())
 		customError, isCustom := err.(*models.CustomError)
@@ -35,6 +35,9 @@ func DeletSong(w http.ResponseWriter, r *http.Request) {
 		}
 		return
 	}
+
 	w.WriteHeader(http.StatusOK)
+	body, _ := json.Marshal(newsong)
+	_, _ = w.Write(body)
 	return
 }

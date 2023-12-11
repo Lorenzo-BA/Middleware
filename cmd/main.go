@@ -13,13 +13,13 @@ func main() {
 	r := chi.NewRouter()
 
 	r.Route("/Music", func(r chi.Router) {
-		r.Get("/", Songs.GetSongs)
-		r.Post("/", Songs.PostSong)
+		r.Get("/", Songs.GetAllSongs)
+		r.Post("/", Songs.CreateSong)
 		r.Route("/{id}", func(r chi.Router) {
 			r.Use(Songs.Ctx)
 			r.Get("/", Songs.GetSong)
 			r.Delete("/", Songs.DeletSong)
-			r.Put("/", Songs.PutSong)
+			r.Put("/", Songs.UpgradeSong)
 		})
 	})
 

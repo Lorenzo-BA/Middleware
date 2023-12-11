@@ -7,7 +7,7 @@ import (
 	"middleware/example/internal/models"
 )
 
-func GetAllSongs() ([]models.Song, error) {
+func RequestGetAllSongs() ([]models.Song, error) {
 	db, err := helpers.OpenDB()
 	if err != nil {
 		return nil, err
@@ -35,7 +35,7 @@ func GetAllSongs() ([]models.Song, error) {
 	return songs, err
 }
 
-func GetSongById(id uuid.UUID) (*models.Song, error) {
+func RequestGetSong(id uuid.UUID) (*models.Song, error) {
 	db, err := helpers.OpenDB()
 	if err != nil {
 		return nil, err
@@ -52,7 +52,7 @@ func GetSongById(id uuid.UUID) (*models.Song, error) {
 	return &song, err
 }
 
-func PostSongById(song models.Song) (*models.Song, error) {
+func RequestCreateSong(song models.Song) (*models.Song, error) {
 	db, err := helpers.OpenDB()
 	if err != nil {
 		return nil, err
@@ -72,7 +72,7 @@ func PostSongById(song models.Song) (*models.Song, error) {
 	return PostSong, err
 }
 
-func PutSongById(song models.Song, id uuid.UUID) (*models.Song, error) {
+func RequestUpgradeSong(song models.Song, id uuid.UUID) (*models.Song, error) {
 	db, err := helpers.OpenDB()
 	if err != nil {
 		return nil, err
@@ -90,7 +90,7 @@ func PutSongById(song models.Song, id uuid.UUID) (*models.Song, error) {
 	return &song, err
 }
 
-func DeleteSongById(id uuid.UUID) error {
+func RequestDeleteSong(id uuid.UUID) error {
 	db, err := helpers.OpenDB()
 	if err != nil {
 		return err

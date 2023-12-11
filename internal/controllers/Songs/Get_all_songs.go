@@ -8,14 +8,14 @@ import (
 	"net/http"
 )
 
-// GetSongs
+// GetAllSongs
 // @Tags         Songs
 // @Summary      Get Songs.
 // @Description  Get Songs.
 // @Success      200            {array}  models.Song
 // @Failure      500             "Something went wrong"
 // @Router       /Songs [get]
-func GetSongs(w http.ResponseWriter, _ *http.Request) {
+func GetAllSongs(w http.ResponseWriter, _ *http.Request) {
 	// calling service
 	Song, err := Songs.GetAllSongs()
 	if err != nil {

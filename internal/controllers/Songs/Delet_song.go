@@ -18,13 +18,11 @@ import (
 // @Failure      422            "Cannot parse id"
 // @Failure      500            "Something went wrong"
 // @Router       /Songs/{id} [get]
-func PutSong(w http.ResponseWriter, r *http.Request) {
-	var song models.Song
-	var newsong *models.Song
-	err := json.NewDecoder(r.Body).Decode(&song)
+func DeletSong(w http.ResponseWriter, r *http.Request) {
+	var _ models.Song
 	ctx := r.Context()
 	Song_Id, _ := ctx.Value("Song_Id").(uuid.UUID)
-	newsong, err = Songs.PutSongById(song, Song_Id)
+	err := Songs.RequestDeleteSong(Song_Id)
 	if err != nil {
 		logrus.Errorf("error : %s", err.Error())
 		customError, isCustom := err.(*models.CustomError)
@@ -37,9 +35,6 @@ func PutSong(w http.ResponseWriter, r *http.Request) {
 		}
 		return
 	}
-
 	w.WriteHeader(http.StatusOK)
-	body, _ := json.Marshal(newsong)
-	_, _ = w.Write(body)
 	return
 }
