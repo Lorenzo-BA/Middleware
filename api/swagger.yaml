@@ -1,13 +1,5 @@
 basePath: /
 definitions:
-  models.CustomError:
-    properties:
-      code:
-        default: 200
-        type: integer
-      message:
-        type: string
-    type: object
   models.User:
     properties:
       id:
@@ -25,7 +17,7 @@ info:
 paths:
   /users:
     get:
-      description: Get users.
+      description: Get all users.
       responses:
         "200":
           description: OK
@@ -39,7 +31,7 @@ paths:
       tags:
       - users
     post:
-      description: Create a new user with the provided name
+      description: Create a new user with the provided name.
       parameters:
       - description: User object to be created
         in: body
@@ -49,19 +41,17 @@ paths:
           $ref: '#/definitions/models.User'
       responses:
         "201":
-          description: user created
+          description: Created
           schema:
             $ref: '#/definitions/models.User'
         "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/models.CustomError'
+          description: Something went wrong
       summary: Create a new user
       tags:
       - users
   /users/{id}:
     delete:
-      description: Delete the user with the specified ID
+      description: Delete the user with the specified ID.
       parameters:
       - description: User UUID formatted ID
         in: path
@@ -71,19 +61,15 @@ paths:
       responses:
         "204":
           description: No Content
-        "400":
-          description: Requête incorrecte - Données utilisateur invalides
-          schema:
-            type: string
+        "422":
+          description: Cannot parse id
         "500":
           description: Internal Server Error
-          schema:
-            $ref: '#/definitions/models.CustomError'
       summary: Delete a user
       tags:
       - users
     get:
-      description: Get a user.
+      description: Get the user with the specified ID.
       parameters:
       - description: User UUID formatted ID
         in: path
@@ -95,45 +81,43 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/models.User'
-        "400":
-          description: Requête incorrecte - Données utilisateur invalides
-          schema:
-            type: string
+        "404":
+          description: User not found
+        "422":
+          description: Cannot parse id
         "500":
           description: Something went wrong
       summary: Get a user.
       tags:
       - users
     put:
-      description: Met à jour l'utilisateur avec l'ID spécifié.
+      description: Update the user with the specified ID.
       parameters:
-      - description: ID de l'utilisateur au format UUID
-        in: path
-        name: id
-        required: true
-        type: string
-      - description: Objet utilisateur à mettre à jour
+      - description: User object to be updated
         in: body
         name: user
         required: true
         schema:
           $ref: '#/definitions/models.User'
+      - description: User UUID formatted ID
+        in: path
+        name: id
+        required: true
+        type: string
       responses:
         "200":
-          description: Utilisateur mis à jour
+          description: OK
           schema:
             $ref: '#/definitions/models.User'
-        "400":
-          description: Requête incorrecte - Données utilisateur invalides
-          schema:
-            type: string
+        "404":
+          description: User not found
+        "422":
+          description: Cannot parse id
         "500":
-          description: Erreur interne du serveur
-          schema:
-            $ref: '#/definitions/models.CustomError'
-      summary: Mettre à jour un utilisateur
+          description: Something went wrong
+      summary: Update a user.
       tags:
-      - users
+      - user
 schemes:
 - http
 swagger: "2.0"

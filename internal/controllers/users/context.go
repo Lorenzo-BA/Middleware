@@ -15,7 +15,7 @@ func Ctx(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		userId, err := uuid.FromString(chi.URLParam(r, "id"))
 		if err != nil {
-			logrus.Errorf("parsing error : %s", err.Error())
+			logrus.Errorf("error : %d - Parsing error : %s", http.StatusUnprocessableEntity, err.Error())
 			customError := &models.CustomError{
 				Message: fmt.Sprintf("cannot parse id (%s) as UUID", chi.URLParam(r, "id")),
 				Code:    http.StatusUnprocessableEntity,

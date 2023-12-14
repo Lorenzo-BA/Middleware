@@ -12,12 +12,12 @@ import (
 // DeleteUser
 // @Tags 		users
 // @Summary 	Delete a user
-// @Description Delete the user with the specified ID
-// @Param 		id path string true "User UUID formatted ID"
-// @Success 	204 "No Content"
-// @Failure 	400 {string} string "Requête incorrecte - Données utilisateur invalides"
-// @Failure 	500 {object} models.CustomError "Internal Server Error"
-// @Router 		/users/{id} [delete]
+// @Description Delete the user with the specified ID.
+// @Param 		id 				path 	string 	true 	"User UUID formatted ID"
+// @Success 	204 			"No Content"
+// @Failure     422 			"Cannot parse id"
+// @Failure 	500 			"Internal Server Error"
+// @Router 		/users/{id} 	[delete]
 func DeleteUser(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userId, _ := ctx.Value("userId").(uuid.UUID)

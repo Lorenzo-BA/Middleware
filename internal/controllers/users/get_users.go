@@ -11,10 +11,10 @@ import (
 // GetUsers
 // @Tags         users
 // @Summary      Get users.
-// @Description  Get users.
+// @Description  Get all users.
 // @Success      200            {array}  models.User
-// @Failure      500             "Something went wrong"
-// @Router       /users [get]
+// @Failure      500            "Something went wrong"
+// @Router       /users 		[get]
 func GetUsers(w http.ResponseWriter, _ *http.Request) {
 	users, err := users.GetAllUsers()
 	if err != nil {

@@ -20,7 +20,7 @@ const docTemplate = `{
     "paths": {
         "/users": {
             "get": {
-                "description": "Get users.",
+                "description": "Get all users.",
                 "tags": [
                     "users"
                 ],
@@ -41,7 +41,7 @@ const docTemplate = `{
                 }
             },
             "post": {
-                "description": "Create a new user with the provided name",
+                "description": "Create a new user with the provided name.",
                 "tags": [
                     "users"
                 ],
@@ -59,23 +59,20 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "201": {
-                        "description": "user created",
+                        "description": "Created",
                         "schema": {
                             "$ref": "#/definitions/models.User"
                         }
                     },
                     "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/models.CustomError"
-                        }
+                        "description": "Something went wrong"
                     }
                 }
             }
         },
         "/users/{id}": {
             "get": {
-                "description": "Get a user.",
+                "description": "Get the user with the specified ID.",
                 "tags": [
                     "users"
                 ],
@@ -96,11 +93,11 @@ const docTemplate = `{
                             "$ref": "#/definitions/models.User"
                         }
                     },
-                    "400": {
-                        "description": "Requête incorrecte - Données utilisateur invalides",
-                        "schema": {
-                            "type": "string"
-                        }
+                    "404": {
+                        "description": "User not found"
+                    },
+                    "422": {
+                        "description": "Cannot parse id"
                     },
                     "500": {
                         "description": "Something went wrong"
@@ -108,52 +105,49 @@ const docTemplate = `{
                 }
             },
             "put": {
-                "description": "Met à jour l'utilisateur avec l'ID spécifié.",
+                "description": "Update the user with the specified ID.",
                 "tags": [
-                    "users"
+                    "user"
                 ],
-                "summary": "Mettre à jour un utilisateur",
+                "summary": "Update a user.",
                 "parameters": [
                     {
-                        "type": "string",
-                        "description": "ID de l'utilisateur au format UUID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "Objet utilisateur à mettre à jour",
+                        "description": "User object to be updated",
                         "name": "user",
                         "in": "body",
                         "required": true,
                         "schema": {
                             "$ref": "#/definitions/models.User"
                         }
+                    },
+                    {
+                        "type": "string",
+                        "description": "User UUID formatted ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "Utilisateur mis à jour",
+                        "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/models.User"
                         }
                     },
-                    "400": {
-                        "description": "Requête incorrecte - Données utilisateur invalides",
-                        "schema": {
-                            "type": "string"
-                        }
+                    "404": {
+                        "description": "User not found"
+                    },
+                    "422": {
+                        "description": "Cannot parse id"
                     },
                     "500": {
-                        "description": "Erreur interne du serveur",
-                        "schema": {
-                            "$ref": "#/definitions/models.CustomError"
-                        }
+                        "description": "Something went wrong"
                     }
                 }
             },
             "delete": {
-                "description": "Delete the user with the specified ID",
+                "description": "Delete the user with the specified ID.",
                 "tags": [
                     "users"
                 ],
@@ -171,35 +165,17 @@ const docTemplate = `{
                     "204": {
                         "description": "No Content"
                     },
-                    "400": {
-                        "description": "Requête incorrecte - Données utilisateur invalides",
-                        "schema": {
-                            "type": "string"
-                        }
+                    "422": {
+                        "description": "Cannot parse id"
                     },
                     "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/models.CustomError"
-                        }
+                        "description": "Internal Server Error"
                     }
                 }
             }
         }
     },
     "definitions": {
-        "models.CustomError": {
-            "type": "object",
-            "properties": {
-                "code": {
-                    "type": "integer",
-                    "default": 200
-                },
-                "message": {
-                    "type": "string"
-                }
-            }
-        },
         "models.User": {
             "type": "object",
             "properties": {

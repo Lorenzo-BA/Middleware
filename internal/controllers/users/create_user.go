@@ -11,11 +11,11 @@ import (
 // CreateUser
 // @Tags 		users
 // @Summary 	Create a new user
-// @Description Create a new user with the provided name
-// @Param 		user body models.User true "User object to be created"
-// @Success 	201 {object} models.User "user created"
-// @Failure 	500 {object} models.CustomError "Internal Server Error"
-// @Router 		/users [post]
+// @Description Create a new user with the provided name.
+// @Param 		user 			body 		models.User 	true 	"User object to be created"
+// @Success 	201 			{object} 	models.User
+// @Failure 	500 			"Something went wrong"
+// @Router 		/users 			[post]
 func CreateUser(w http.ResponseWriter, r *http.Request) {
 	var user models.User
 	err := json.NewDecoder(r.Body).Decode(&user)
