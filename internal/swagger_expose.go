@@ -1,11 +1,11 @@
 package internal
 
-// @title        middleware/example
+// @title        middleware/user
 // @version      1.0.0
-// @description  API to manage collections.
+// @description  API to manage Users.
 
-// @contact.name   Justine Bachelard.
-// @contact.email  justine.bachelard@ext.uca.fr
+// @contact.name   Lorenzo BARBEY
+// @contact.email  lorenzo.BARBEY@etu.uca.fr
 
 // @schemes   http
 // @BasePath  /

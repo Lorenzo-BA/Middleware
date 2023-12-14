@@ -1,12 +1,139 @@
 basePath: /
+definitions:
+  models.CustomError:
+    properties:
+      code:
+        default: 200
+        type: integer
+      message:
+        type: string
+    type: object
+  models.User:
+    properties:
+      id:
+        type: string
+      name:
+        type: string
+    type: object
 info:
   contact:
-    email: justine.bachelard@ext.uca.fr
-    name: Justine Bachelard.
-  description: API to manage collections.
-  title: middleware/example
+    email: lorenzo.BARBEY@etu.uca.fr
+    name: Lorenzo BARBEY
+  description: API to manage Users.
+  title: middleware/user
   version: 1.0.0
-paths: {}
+paths:
+  /users:
+    get:
+      description: Get users.
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.User'
+            type: array
+        "500":
+          description: Something went wrong
+      summary: Get users.
+      tags:
+      - users
+    post:
+      description: Create a new user with the provided name
+      parameters:
+      - description: User object to be created
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/models.User'
+      responses:
+        "201":
+          description: user created
+          schema:
+            $ref: '#/definitions/models.User'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.CustomError'
+      summary: Create a new user
+      tags:
+      - users
+  /users/{id}:
+    delete:
+      description: Delete the user with the specified ID
+      parameters:
+      - description: User UUID formatted ID
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Requête incorrecte - Données utilisateur invalides
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.CustomError'
+      summary: Delete a user
+      tags:
+      - users
+    get:
+      description: Get a user.
+      parameters:
+      - description: User UUID formatted ID
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.User'
+        "400":
+          description: Requête incorrecte - Données utilisateur invalides
+          schema:
+            type: string
+        "500":
+          description: Something went wrong
+      summary: Get a user.
+      tags:
+      - users
+    put:
+      description: Met à jour l'utilisateur avec l'ID spécifié.
+      parameters:
+      - description: ID de l'utilisateur au format UUID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Objet utilisateur à mettre à jour
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/models.User'
+      responses:
+        "200":
+          description: Utilisateur mis à jour
+          schema:
+            $ref: '#/definitions/models.User'
+        "400":
+          description: Requête incorrecte - Données utilisateur invalides
+          schema:
+            type: string
+        "500":
+          description: Erreur interne du serveur
+          schema:
+            $ref: '#/definitions/models.CustomError'
+      summary: Mettre à jour un utilisateur
+      tags:
+      - users
 schemes:
 - http
 swagger: "2.0"

@@ -5,8 +5,8 @@ import (
 	"errors"
 	"github.com/gofrs/uuid"
 	"github.com/sirupsen/logrus"
-	"middleware/example/internal/models"
-	repository "middleware/example/internal/repositories/users"
+	"middleware/user/internal/models"
+	repository "middleware/user/internal/repositories/users"
 	"net/http"
 )
 
@@ -20,7 +20,7 @@ func GetAllUsers() ([]models.User, error) {
 		}
 	}
 
-	return users, nil
+	return users, err
 }
 
 func GetUserById(id uuid.UUID) (*models.User, error) {
@@ -45,12 +45,6 @@ func GetUserById(id uuid.UUID) (*models.User, error) {
 func CreateUser(user models.User) (*models.User, error) {
 	newUser, err := repository.CreateUser(user)
 	if err != nil {
-		if errors.As(err, &sql.ErrNoRows) {
-			return nil, &models.CustomError{
-				Message: "user not found",
-				Code:    http.StatusNotFound,
-			}
-		}
 		logrus.Errorf("error retrieving collections : %s", err.Error())
 		return nil, &models.CustomError{
 			Message: "Something went wrong",
@@ -98,4 +92,3 @@ func UpdateUser(user models.User, id uuid.UUID) (*models.User, error) {
 
 	return newUser, err
 }
-

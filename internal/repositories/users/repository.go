@@ -2,8 +2,8 @@ package users
 
 import (
 	"github.com/gofrs/uuid"
-	"middleware/example/internal/helpers"
-	"middleware/example/internal/models"
+	"middleware/user/internal/helpers"
+	"middleware/user/internal/models"
 )
 
 func GetAllUsers() ([]models.User, error) {

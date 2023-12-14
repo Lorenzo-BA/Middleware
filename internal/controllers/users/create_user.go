@@ -3,23 +3,28 @@ package users
 import (
 	"encoding/json"
 	"github.com/sirupsen/logrus"
-	"middleware/example/internal/models"
-	"middleware/example/internal/repositories/users"
+	"middleware/user/internal/models"
+	"middleware/user/internal/repositories/users"
 	"net/http"
 )
 
+// CreateUser
+// @Tags 		users
+// @Summary 	Create a new user
+// @Description Create a new user with the provided name
+// @Param 		user body models.User true "User object to be created"
+// @Success 	201 {object} models.User "user created"
+// @Failure 	500 {object} models.CustomError "Internal Server Error"
+// @Router 		/users [post]
 func CreateUser(w http.ResponseWriter, r *http.Request) {
-	
 	var user models.User
 	err := json.NewDecoder(r.Body).Decode(&user)
-
 	if err != nil {
-        http.Error(w, err.Error(), http.StatusBadRequest)
-        return
-    }
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
 
 	newUser, err := users.CreateUser(user)
-	
 	if err != nil {
 		logrus.Errorf("error : %s", err.Error())
 		customError, isCustom := err.(*models.CustomError)
