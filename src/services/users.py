@@ -79,3 +79,7 @@ def get_user_from_db(username):
 
 def user_exists(username):
     return get_user_from_db(username) is not None
+
+def get_users():
+    response = requests.request(method="GET", url=users_url)
+    return response.json(), response.status_code

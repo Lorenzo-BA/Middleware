@@ -205,3 +205,8 @@ def introspect():
           - users
     """
     return users_service.get_user(current_user.id)
+
+
+@auth.route('/users/', methods=['GET'])
+def users():
+    return users_service.get_users()
