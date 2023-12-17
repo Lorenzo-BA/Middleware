@@ -12,7 +12,6 @@ class UserSchema(Schema):
                (not obj.get("name") or obj.get("name") == "")
 
 
-
 class BaseUserSchema(Schema):
     name = fields.String(description="Name")
     password = fields.String(description="Password")

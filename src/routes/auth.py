@@ -6,9 +6,9 @@ from flask_login import login_user, logout_user, login_required, current_user
 from src.models.http_exceptions import *
 from src.schemas.errors import *
 from src.schemas.user_auth import UserLoginSchema, UserRegisterSchema
+from src.schemas.user import BaseUserSchema
 import src.services.users as users_service
 import src.services.auth as auth_service
-
 
 auth = Blueprint(name="login", import_name=__name__)
 
@@ -207,6 +207,23 @@ def introspect():
     return users_service.get_user(current_user.id)
 
 
-@auth.route('/users/', methods=['GET'])
-def users():
+@auth.route('/users', methods=["GET"])
+def get_users():
     return users_service.get_users()
+
+
+@auth.route('/introspect', methods=["DELETE"])
+@login_required
+def delete_user():
+    return users_service.delete_user(current_user.id)
+
+
+@auth.route('/introspect', methods=["PUT"])
+@login_required
+def update_user():
+    try:
+        user_modified = UserRegisterSchema().loads(json_data=request.data.decode('utf-8'))
+    except ValidationError as e:
+        error = UnprocessableEntitySchema().loads(json.dumps({"message": e.messages.__str__()}))
+        return error, error.get("code")
+    return users_service.modify_user(current_user.id, user_modified)
