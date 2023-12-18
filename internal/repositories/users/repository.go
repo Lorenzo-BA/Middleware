@@ -6,6 +6,7 @@ import (
 	"middleware/user/internal/helpers"
 	"middleware/user/internal/models"
 	"net/http"
+	"time"
 )
 
 func GetAllUsers() ([]models.User, error) {
@@ -23,7 +24,7 @@ func GetAllUsers() ([]models.User, error) {
 	users := []models.User{}
 	for rows.Next() {
 		var data models.User
-		err = rows.Scan(&data.Id, &data.Name)
+		err = rows.Scan(&data.Id, &data.InscriptionDate, &data.Name, &data.Username)
 		if err != nil {
 			return nil, err
 		}
@@ -44,7 +45,7 @@ func GetUserById(id uuid.UUID) (*models.User, error) {
 	helpers.CloseDB(db)
 
 	var user models.User
-	err = row.Scan(&user.Id, &user.Name)
+	err = row.Scan(&user.Id, &user.InscriptionDate, &user.Name, &user.Username)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, &models.CustomError{
@@ -70,7 +71,8 @@ func CreateUser(user models.User) (*models.User, error) {
 		return nil, err
 	}
 
-	_, err = db.Exec("INSERT INTO USERS (id, name) VALUES (?, ?)", randomUUID.String(), user.Name)
+	inscriptionDate := time.Now()
+	_, err = db.Exec("INSERT INTO USERS (id, inscription_date, name, username) VALUES (?, ?, ?, ?)", randomUUID.String(), inscriptionDate, user.Name, user.Username)
 	helpers.CloseDB(db)
 	if err != nil {
 		return nil, err
@@ -101,7 +103,7 @@ func UpdateUser(user models.User, id uuid.UUID) (*models.User, error) {
 		return nil, err
 	}
 
-	_, err = db.Exec("UPDATE USERS SET Name = ? WHERE id = ?", user.Name, id.String())
+	_, err = db.Exec("UPDATE USERS SET name = ?, username = ? WHERE id = ?", user.Username, user.Name, id.String())
 	helpers.CloseDB(db)
 	if err != nil {
 		if err == sql.ErrNoRows {

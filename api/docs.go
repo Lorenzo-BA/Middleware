@@ -18,7 +18,7 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/users": {
+        "/users/": {
             "get": {
                 "description": "Get all users.",
                 "tags": [
@@ -27,7 +27,7 @@ const docTemplate = `{
                 "summary": "Get users.",
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Array of User object",
                         "schema": {
                             "type": "array",
                             "items": {
@@ -36,7 +36,10 @@ const docTemplate = `{
                         }
                     },
                     "500": {
-                        "description": "Something went wrong"
+                        "description": "Something went wrong",
+                        "schema": {
+                            "$ref": "#/definitions/models.CustomError"
+                        }
                     }
                 }
             },
@@ -64,8 +67,17 @@ const docTemplate = `{
                             "$ref": "#/definitions/models.User"
                         }
                     },
+                    "400": {
+                        "description": "Invalid JSON format",
+                        "schema": {
+                            "$ref": "#/definitions/models.CustomError"
+                        }
+                    },
                     "500": {
-                        "description": "Something went wrong"
+                        "description": "Something went wrong",
+                        "schema": {
+                            "$ref": "#/definitions/models.CustomError"
+                        }
                     }
                 }
             }
@@ -88,19 +100,28 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "User object",
                         "schema": {
                             "$ref": "#/definitions/models.User"
                         }
                     },
                     "404": {
-                        "description": "User not found"
+                        "description": "User not found",
+                        "schema": {
+                            "$ref": "#/definitions/models.CustomError"
+                        }
                     },
                     "422": {
-                        "description": "Cannot parse id"
+                        "description": "Cannot parse id",
+                        "schema": {
+                            "$ref": "#/definitions/models.CustomError"
+                        }
                     },
                     "500": {
-                        "description": "Something went wrong"
+                        "description": "Something went wrong",
+                        "schema": {
+                            "$ref": "#/definitions/models.CustomError"
+                        }
                     }
                 }
             },
@@ -130,19 +151,34 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "User object updated",
                         "schema": {
                             "$ref": "#/definitions/models.User"
                         }
                     },
+                    "400": {
+                        "description": "Invalid JSON format",
+                        "schema": {
+                            "$ref": "#/definitions/models.CustomError"
+                        }
+                    },
                     "404": {
-                        "description": "User not found"
+                        "description": "User not found",
+                        "schema": {
+                            "$ref": "#/definitions/models.CustomError"
+                        }
                     },
                     "422": {
-                        "description": "Cannot parse id"
+                        "description": "Cannot parse id",
+                        "schema": {
+                            "$ref": "#/definitions/models.CustomError"
+                        }
                     },
                     "500": {
-                        "description": "Something went wrong"
+                        "description": "Something went wrong",
+                        "schema": {
+                            "$ref": "#/definitions/models.CustomError"
+                        }
                     }
                 }
             },
@@ -163,26 +199,53 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "204": {
-                        "description": "No Content"
+                        "description": "No Content",
+                        "schema": {
+                            "$ref": "#/definitions/models.User"
+                        }
                     },
                     "422": {
-                        "description": "Cannot parse id"
+                        "description": "Cannot parse id",
+                        "schema": {
+                            "$ref": "#/definitions/models.CustomError"
+                        }
                     },
                     "500": {
-                        "description": "Internal Server Error"
+                        "description": "Something went wrong",
+                        "schema": {
+                            "$ref": "#/definitions/models.CustomError"
+                        }
                     }
                 }
             }
         }
     },
     "definitions": {
+        "models.CustomError": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer",
+                    "default": 200
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
         "models.User": {
             "type": "object",
             "properties": {
                 "id": {
                     "type": "string"
                 },
+                "inscription_date": {
+                    "type": "string"
+                },
                 "name": {
+                    "type": "string"
+                },
+                "username": {
                     "type": "string"
                 }
             }

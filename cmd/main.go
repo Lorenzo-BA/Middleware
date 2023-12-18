@@ -10,7 +10,6 @@ import (
 
 func main() {
 	r := chi.NewRouter()
-
 	r.Route("/users", func(r chi.Router) {
 		r.Get("/", users.GetUsers)
 		r.Post("/", users.CreateUser)
@@ -22,8 +21,9 @@ func main() {
 		})
 	})
 
-	logrus.Info("[INFO] Web server started. Now listening on *:8080")
-	logrus.Fatalln(http.ListenAndServe(":8080", r))
+	port := ":8080"
+	logrus.Info("[INFO] Web server started. Now listening on %s", port)
+	logrus.Fatalln(http.ListenAndServe(port, r))
 }
 
 func init() {
@@ -34,7 +34,9 @@ func init() {
 	schemes := []string{
 		`CREATE TABLE IF NOT EXISTS USERS (
 			id VARCHAR(255) PRIMARY KEY NOT NULL UNIQUE,
-			name VARCHAR(255) NOT NULL
+			inscription_date TIMESTAMP NOT NULL,
+			name VARCHAR(255) NOT NULL,
+			username VARCHAR(255) NOT NULL
 		);`,
 	}
 	for _, scheme := range schemes {

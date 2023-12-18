@@ -13,12 +13,12 @@ import (
 // @Tags         users
 // @Summary      Get a user.
 // @Description  Get the user with the specified ID.
-// @Param        id           	path      string  true  "User UUID formatted ID"
-// @Success      200            {object}  models.User
-// @Failure 	 404 		 	"User not found"
-// @Failure      422            "Cannot parse id"
-// @Failure      500            "Something went wrong"
-// @Router       /users/{id} 	[get]
+// @Param   id   path    string  true  		 "User UUID formatted ID"
+// @Success 200 {object} models.User		 "User object"
+// @Failure 404 {object} models.CustomError  "User not found"
+// @Failure 422 {object} models.CustomError  "Cannot parse id"
+// @Failure 500 {object} models.CustomError  "Something went wrong"
+// @Router      /users/{id} 	[get]
 func GetUser(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userId, _ := ctx.Value("userId").(uuid.UUID)

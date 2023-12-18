@@ -12,15 +12,16 @@ import (
 // @Tags 		users
 // @Summary 	Create a new user
 // @Description Create a new user with the provided name.
-// @Param 		user 			body 		models.User 	true 	"User object to be created"
-// @Success 	201 			{object} 	models.User
-// @Failure 	500 			"Something went wrong"
-// @Router 		/users 			[post]
+// @Param  user  body 	 models.User  true  "User object to be created"
+// @Success 201 {object} models.User        "Created"
+// @Failure 400 {object} models.CustomError "Invalid JSON format"
+// @Failure 500 {object} models.CustomError	"Something went wrong"
+// @Router 		/users/ 			[post]
 func CreateUser(w http.ResponseWriter, r *http.Request) {
 	var user models.User
 	err := json.NewDecoder(r.Body).Decode(&user)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		http.Error(w, "Invalid JSON format", http.StatusBadRequest)
 		return
 	}
 

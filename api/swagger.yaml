@@ -1,10 +1,22 @@
 basePath: /
 definitions:
+  models.CustomError:
+    properties:
+      code:
+        default: 200
+        type: integer
+      message:
+        type: string
+    type: object
   models.User:
     properties:
       id:
         type: string
+      inscription_date:
+        type: string
       name:
+        type: string
+      username:
         type: string
     type: object
 info:
@@ -15,18 +27,20 @@ info:
   title: middleware/user
   version: 1.0.0
 paths:
-  /users:
+  /users/:
     get:
       description: Get all users.
       responses:
         "200":
-          description: OK
+          description: Array of User object
           schema:
             items:
               $ref: '#/definitions/models.User'
             type: array
         "500":
           description: Something went wrong
+          schema:
+            $ref: '#/definitions/models.CustomError'
       summary: Get users.
       tags:
       - users
@@ -44,8 +58,14 @@ paths:
           description: Created
           schema:
             $ref: '#/definitions/models.User'
+        "400":
+          description: Invalid JSON format
+          schema:
+            $ref: '#/definitions/models.CustomError'
         "500":
           description: Something went wrong
+          schema:
+            $ref: '#/definitions/models.CustomError'
       summary: Create a new user
       tags:
       - users
@@ -61,10 +81,16 @@ paths:
       responses:
         "204":
           description: No Content
+          schema:
+            $ref: '#/definitions/models.User'
         "422":
           description: Cannot parse id
+          schema:
+            $ref: '#/definitions/models.CustomError'
         "500":
-          description: Internal Server Error
+          description: Something went wrong
+          schema:
+            $ref: '#/definitions/models.CustomError'
       summary: Delete a user
       tags:
       - users
@@ -78,15 +104,21 @@ paths:
         type: string
       responses:
         "200":
-          description: OK
+          description: User object
           schema:
             $ref: '#/definitions/models.User'
         "404":
           description: User not found
+          schema:
+            $ref: '#/definitions/models.CustomError'
         "422":
           description: Cannot parse id
+          schema:
+            $ref: '#/definitions/models.CustomError'
         "500":
           description: Something went wrong
+          schema:
+            $ref: '#/definitions/models.CustomError'
       summary: Get a user.
       tags:
       - users
@@ -106,15 +138,25 @@ paths:
         type: string
       responses:
         "200":
-          description: OK
+          description: User object updated
           schema:
             $ref: '#/definitions/models.User'
+        "400":
+          description: Invalid JSON format
+          schema:
+            $ref: '#/definitions/models.CustomError'
         "404":
           description: User not found
+          schema:
+            $ref: '#/definitions/models.CustomError'
         "422":
           description: Cannot parse id
+          schema:
+            $ref: '#/definitions/models.CustomError'
         "500":
           description: Something went wrong
+          schema:
+            $ref: '#/definitions/models.CustomError'
       summary: Update a user.
       tags:
       - user
