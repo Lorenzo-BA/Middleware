@@ -6,9 +6,11 @@ from flask_login import login_user, logout_user, login_required, current_user
 from src.models.http_exceptions import *
 from src.schemas.errors import *
 from src.schemas.user_auth import UserLoginSchema, UserRegisterSchema
-from src.schemas.user import BaseUserSchema
+from src.schemas.rating import *
 import src.services.users as users_service
 import src.services.auth as auth_service
+import src.services.ratings as ratings_service
+
 
 auth = Blueprint(name="login", import_name=__name__)
 
@@ -207,23 +209,61 @@ def introspect():
     return users_service.get_user(current_user.id)
 
 
-@auth.route('/users', methods=["GET"])
+@auth.route('/users/', methods=["GET"])
 def get_users():
     return users_service.get_users()
 
 
-@auth.route('/introspect', methods=["DELETE"])
-@login_required
-def delete_user():
-    return users_service.delete_user(current_user.id)
+@auth.route('/users/<user_id>', methods=["GET"])
+def get_user(user_id):
+    return users_service.get_user(user_id)
 
 
-@auth.route('/introspect', methods=["PUT"])
-@login_required
-def update_user():
+@auth.route('/users/<user_id>', methods=["DELETE"])
+def delete_user(user_id):
+    return users_service.delete_user(user_id)
+
+
+@auth.route('/users/<user_id>', methods=["PUT"])
+def update_user(user_id):
     try:
         user_modified = UserRegisterSchema().loads(json_data=request.data.decode('utf-8'))
     except ValidationError as e:
         error = UnprocessableEntitySchema().loads(json.dumps({"message": e.messages.__str__()}))
         return error, error.get("code")
-    return users_service.modify_user(current_user.id, user_modified)
+    return users_service.modify_user(user_id, user_modified)
+
+
+@auth.route('/songs/<song_id>/ratings', methods=["GET"])
+def get_ratings_by_song_id(song_id):
+    return ratings_service.get_ratings_by_song_id(song_id)
+
+
+@auth.route('/songs/<song_id>/ratings', methods=["POST"])
+def add_ratings_with_song_id(song_id):
+    try:
+        rating = RatingAddSchema().loads(json_data=request.data.decode('utf-8'))
+    except ValidationError as e:
+        error = UnprocessableEntitySchema().loads(json.dumps({"message": e.messages.__str__()}))
+        return error, error.get("code")
+    return ratings_service.add_ratings_with_song_id(song_id, rating)
+
+
+@auth.route('/songs/<song_id>/ratings/<rating_id>', methods=["DELETE"])
+def delete_ratings_by_song_id_and_ratings_id(song_id, rating_id):
+    return ratings_service.delete_ratings_by_song_id_and_ratings_id(song_id, rating_id)
+
+
+@auth.route('/songs/<song_id>/ratings/<rating_id>', methods=["GET"])
+def get_ratings_by_song_id_and_ratings_id(song_id, rating_id):
+    return ratings_service.get_ratings_by_song_id_and_ratings_id(song_id, rating_id)
+
+
+@auth.route('/songs/<song_id>/ratings/<rating_id>', methods=["PUT"])
+def update_ratings_by_song_id_and_ratings_id(song_id, rating_id):
+    try:
+        rating = RatingAddSchema().loads(json_data=request.data.decode('utf-8'))
+    except ValidationError as e:
+        error = UnprocessableEntitySchema().loads(json.dumps({"message": e.messages.__str__()}))
+        return error, error.get("code")
+    return ratings_service.update_ratings_by_song_id_and_ratings_id(song_id, rating_id, rating)

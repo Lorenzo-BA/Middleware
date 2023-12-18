@@ -17,8 +17,8 @@ def get_users():
     return response.json(), response.status_code
 
 
-def get_user(id):
-    response = requests.request(method="GET", url=users_url + id)
+def get_user(user_id):
+    response = requests.request(method="GET", url=users_url + user_id)
     return response.json(), response.status_code
 
 
@@ -77,8 +77,8 @@ def modify_user(id, user_update):
     return (response.json(), response.status_code) if response else get_user(id)
 
 
-def delete_user(id):
-    response = requests.request(method="DELETE", url=users_url + id)
+def delete_user(user_id):
+    response = requests.request(method="DELETE", url=users_url + user_id)
     if response.status_code != 204:
         return "Something went wrong", response.status_code
     try:
