@@ -22,7 +22,7 @@ class Song(SongMixin, db.Model):
                (not self.songTitle or self.songTitle == "") and \
                (not self.published_date or self.published_date == "")
 
-    @staticmethod
-    def from_dict_with_clear_password(obj):
-        songTitle = obj.get("songTitle") if obj.get("songTitle") != "" else None
-        return Song(None, songTitle)
+#    @staticmethod
+#    def from_dict_with_clear_password(obj):
+#        songTitle = obj.get("songTitle") if obj.get("songTitle") != "" else None
+#        return Song(None, songTitle)

@@ -1,5 +1,5 @@
 import json
-from flask import Blueprint, request
+from flask import Blueprint, request, json
 from marshmallow import ValidationError
 from flask_login import login_user, logout_user, login_required, current_user
 
@@ -205,3 +205,236 @@ def introspect():
           - users
     """
     return users_service.get_user(current_user.id)
+
+####################################################################################
+#____________________________________SONGS__________________________________________
+####################################################################################
+
+@auth.route('/songs/', methods=["GET"])
+def get_all_songs():
+    """
+    ---
+    get:
+      description: Getting all song
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: uuidv4
+          required: true
+          description: UUID of song id
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema: Song
+            application/yaml:
+              schema: Song
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema: Unauthorized
+            application/yaml:
+              schema: Unauthorized
+
+      tags:
+          - songs
+    """
+    return songs_service.get_songs()
+
+
+@auth.route('/songs/<id>', methods=["GET"])
+def get_single_song(id):
+    """
+    ---
+    get:
+      description: Getting a song
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: uuidv4
+          required: true
+          description: UUID of song id
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema: Song
+            application/yaml:
+              schema: Song
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema: Unauthorized
+            application/yaml:
+              schema: Unauthorized
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema: NotFound
+            application/yaml:
+              schema: NotFound
+      tags:
+          - songs
+    """
+    return songs_service.get_song(id)
+
+
+
+@auth.route('/songs/<id>', methods=["DELETE"])
+def delete_song(id):
+    """
+    ---
+    get:
+      description: Deleting a song
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: uuidv4
+          required: true
+          description: UUID of song id
+      responses:
+        '204':
+          description: No content
+          content:
+            application/json:
+              schema: Song
+            application/yaml:
+              schema: Song
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema: Unauthorized
+            application/yaml:
+              schema: Unauthorized
+        '422':
+          description: Unprocessable entity
+          content:
+            application/json:
+              schema: NotFound
+            application/yaml:
+              schema: NotFound
+      tags:
+          - songs
+    """
+    return songs_service.delete_song(id)
+
+
+@auth.route('/songs/', methods=["POST"])
+def create_song():
+    """
+    ---
+    post:
+      description: Creating a song
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: uuidv4
+          required: true
+          description: UUID of song id
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema: Song
+            application/yaml:
+              schema: Song
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema: Unauthorized
+            application/yaml:
+              schema: Unauthorized
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema: NotFound
+            application/yaml:
+              schema: NotFound
+        '422':
+          description: Unprocessable entity
+          content:
+            application/json:
+              schema: NotFound
+            application/yaml:
+              schema: NotFound
+        '500':
+          description: Something went wrong
+          content:
+            application/json:
+              schema: NotFound
+            application/yaml:
+              schema: NotFound
+      tags:
+          - songs
+    """
+    return songs_service.post_song()
+
+@auth.route('/songs/<id>', methods=["PUT"])
+def update_song(id):
+    """
+    ---
+    put:
+      description: Updating a song
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: uuidv4
+          required: true
+          description: UUID of song id
+      requestBody:
+        required: true
+        content:
+            application/json:
+                schema: SongUpdate
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema: Song
+            application/yaml:
+              schema: Song
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema: Unauthorized
+            application/yaml:
+              schema: Unauthorized
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema: NotFound
+            application/yaml:
+              schema: NotFound
+        '422':
+          description: Unprocessable entity
+          content:
+            application/json:
+              schema: UnprocessableEntity
+            application/yaml:
+              schema: UnprocessableEntity
+      tags:
+          - songs
+    """
+    try:
+        song_modified = SongUpdateSchema().loads(json_data=request.data.decode('utf-8'))
+    except ValidationError as e:
+        error = UnprocessableEntitySchema().loads(json.dumps({"message": e.messages.__str__()}))
+        return error, error.get("code")
+    return songs_service.modify_song(id, song_modified)

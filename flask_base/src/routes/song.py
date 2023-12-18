@@ -146,7 +146,7 @@ def post_user(content):
     """
     ---
     post:
-      description: Getting a song
+      description: Creating a song
       parameters:
         - in: path
           name: id
@@ -196,7 +196,7 @@ def post_user(content):
 
 @songs.route('/<id>', methods=['DELETE'])
 @login_required
-def get_user(id):
+def delete_user(id):
     """
     ---
     get:
