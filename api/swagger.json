@@ -1,0 +1,288 @@
+{
+    "schemes": [
+        "http"
+    ],
+    "swagger": "2.0",
+    "info": {
+        "description": "API to manage Ratings.",
+        "title": "middleware/rating",
+        "contact": {
+            "name": "Lorenzo BARBEY",
+            "email": "lorenzo.BARBEY@etu.uca.fr"
+        },
+        "version": "1.0.0"
+    },
+    "basePath": "/",
+    "paths": {
+        "/songs/{song_id}/ratings/": {
+            "get": {
+                "description": "Get all ratings.",
+                "tags": [
+                    "ratings"
+                ],
+                "summary": "Get ratings",
+                "responses": {
+                    "200": {
+                        "description": "Array of Rating object",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.Rating"
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Cannot parse id",
+                        "schema": {
+                            "$ref": "#/definitions/models.CustomError"
+                        }
+                    },
+                    "500": {
+                        "description": "Something went wrong",
+                        "schema": {
+                            "$ref": "#/definitions/models.CustomError"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Create a new rating with the provided content.",
+                "tags": [
+                    "ratings"
+                ],
+                "summary": "Create a new rating",
+                "parameters": [
+                    {
+                        "description": "Rating object to be created",
+                        "name": "rating",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.Rating"
+                        }
+                    },
+                    {
+                        "type": "string",
+                        "description": "Song UUID formatted ID",
+                        "name": "songId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/models.Rating"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid JSON format",
+                        "schema": {
+                            "$ref": "#/definitions/models.CustomError"
+                        }
+                    },
+                    "422": {
+                        "description": "Cannot parse id",
+                        "schema": {
+                            "$ref": "#/definitions/models.CustomError"
+                        }
+                    },
+                    "500": {
+                        "description": "Something went wrong",
+                        "schema": {
+                            "$ref": "#/definitions/models.CustomError"
+                        }
+                    }
+                }
+            }
+        },
+        "/songs/{song_id}/ratings/{ratingId}": {
+            "put": {
+                "description": "Update the rating with the specified ID.",
+                "tags": [
+                    "ratings"
+                ],
+                "summary": "Update a rating.",
+                "parameters": [
+                    {
+                        "description": "Rating object to be updated",
+                        "name": "rating",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.Rating"
+                        }
+                    },
+                    {
+                        "type": "string",
+                        "description": "Rating UUID formatted ID",
+                        "name": "ratingId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Rating object updated",
+                        "schema": {
+                            "$ref": "#/definitions/models.Rating"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid JSON format",
+                        "schema": {
+                            "$ref": "#/definitions/models.CustomError"
+                        }
+                    },
+                    "404": {
+                        "description": "Rating not found",
+                        "schema": {
+                            "$ref": "#/definitions/models.CustomError"
+                        }
+                    },
+                    "422": {
+                        "description": "Cannot parse id",
+                        "schema": {
+                            "$ref": "#/definitions/models.CustomError"
+                        }
+                    },
+                    "500": {
+                        "description": "Something went wrong",
+                        "schema": {
+                            "$ref": "#/definitions/models.CustomError"
+                        }
+                    }
+                }
+            }
+        },
+        "/songs/{song_id}/ratings/{rating_id}": {
+            "get": {
+                "description": "Get the rating with the specified ID.",
+                "tags": [
+                    "ratings"
+                ],
+                "summary": "Get a rating",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Song UUID formatted ID",
+                        "name": "songId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Rating UUID formatted ID",
+                        "name": "ratingId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Rating object",
+                        "schema": {
+                            "$ref": "#/definitions/models.Rating"
+                        }
+                    },
+                    "404": {
+                        "description": "Rating not found",
+                        "schema": {
+                            "$ref": "#/definitions/models.CustomError"
+                        }
+                    },
+                    "422": {
+                        "description": "Cannot parse id",
+                        "schema": {
+                            "$ref": "#/definitions/models.CustomError"
+                        }
+                    },
+                    "500": {
+                        "description": "Something went wrong",
+                        "schema": {
+                            "$ref": "#/definitions/models.CustomError"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Delete the rating with the specified ID.",
+                "tags": [
+                    "ratings"
+                ],
+                "summary": "Delete a rating",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Song UUID formatted ID",
+                        "name": "songId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Rating UUID formatted ID",
+                        "name": "ratingId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "422": {
+                        "description": "Cannot parse id",
+                        "schema": {
+                            "$ref": "#/definitions/models.CustomError"
+                        }
+                    },
+                    "500": {
+                        "description": "Something went wrong",
+                        "schema": {
+                            "$ref": "#/definitions/models.CustomError"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "models.CustomError": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer",
+                    "default": 200
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.Rating": {
+            "type": "object",
+            "properties": {
+                "comment": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "rating": {
+                    "type": "integer"
+                },
+                "rating_date": {
+                    "type": "string"
+                },
+                "song_id": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "string"
+                }
+            }
+        }
+    }
+}

@@ -1,21 +1,19 @@
 package ratings
 
 import (
-	"database/sql"
 	"github.com/gofrs/uuid"
 	"middleware/rating/internal/helpers"
 	"middleware/rating/internal/models"
-	"net/http"
 	"time"
 )
 
-func GetAllRatings() ([]models.Rating, error) {
+func GetAllRatings(songId uuid.UUID) ([]models.Rating, error) {
 	db, err := helpers.OpenDB()
 	if err != nil {
 		return nil, err
 	}
 
-	rows, err := db.Query("SELECT * FROM RATINGS")
+	rows, err := db.Query("SELECT * FROM RATINGS WHERE id = ?", songId.String())
 	helpers.CloseDB(db)
 	if err != nil {
 		return nil, err
@@ -35,31 +33,25 @@ func GetAllRatings() ([]models.Rating, error) {
 	return ratings, err
 }
 
-func GetRatingById(id uuid.UUID) (*models.Rating, error) {
+func GetRatingById(songId uuid.UUID, ratingId uuid.UUID) (*models.Rating, error) {
 	db, err := helpers.OpenDB()
 	if err != nil {
 		return nil, err
 	}
 
-	row := db.QueryRow("SELECT * FROM RATINGS WHERE id=?", id.String())
+	row := db.QueryRow("SELECT * FROM RATINGS WHERE id=? AND song_id=?", ratingId.String(), songId.String())
 	helpers.CloseDB(db)
 
 	var rating models.Rating
 	err = row.Scan(&rating.Id, &rating.RatingDate, &rating.Comment, &rating.SongId, &rating.UserId, &rating.Rating)
 	if err != nil {
-		if err == sql.ErrNoRows {
-			return nil, &models.CustomError{
-				Message: "Rating not found",
-				Code:    http.StatusNotFound,
-			}
-		}
 		return nil, err
 	}
 
 	return &rating, err
 }
 
-func CreateRating(rating models.Rating, ratingId uuid.UUID) (*models.Rating, error) {
+func CreateRating(rating models.Rating, songId uuid.UUID) (*models.Rating, error) {
 	db, err := helpers.OpenDB()
 	if err != nil {
 		return nil, err
@@ -72,23 +64,23 @@ func CreateRating(rating models.Rating, ratingId uuid.UUID) (*models.Rating, err
 	}
 
 	ratingDate := time.Now()
-	_, err = db.Exec("INSERT INTO RATINGS (id, rating_date, comment, song_id, user_id, rating) VALUES (?, ?, ?, ?, ?, ?)", randomUUID.String(), ratingDate, rating.Comment, ratingId, rating.UserId, rating.Rating)
+	_, err = db.Exec("INSERT INTO RATINGS (id, rating_date, comment, song_id, user_id, rating) VALUES (?, ?, ?, ?, ?, ?)", randomUUID.String(), ratingDate, rating.Comment, songId, rating.UserId, rating.Rating)
 	helpers.CloseDB(db)
 	if err != nil {
 		return nil, err
 	}
 
-	createdRating, err := GetRatingById(randomUUID)
+	createdRating, err := GetRatingById(songId, randomUUID)
 	return createdRating, err
 }
 
-func DeleteRating(id uuid.UUID) error {
+func DeleteRating(songId uuid.UUID, ratingId uuid.UUID) error {
 	db, err := helpers.OpenDB()
 	if err != nil {
 		return err
 	}
 
-	_, err = db.Exec("DELETE FROM RATINGS WHERE id = ?", id.String())
+	_, err = db.Exec("DELETE FROM RATINGS WHERE id = ? AND song_id = ?", ratingId.String(), songId.String())
 	helpers.CloseDB(db)
 	if err != nil {
 		return err
@@ -97,24 +89,18 @@ func DeleteRating(id uuid.UUID) error {
 	return err
 }
 
-func UpdateRating(rating models.Rating, id uuid.UUID) (*models.Rating, error) {
+func UpdateRating(rating models.Rating, songId uuid.UUID, ratingId uuid.UUID) (*models.Rating, error) {
 	db, err := helpers.OpenDB()
 	if err != nil {
 		return nil, err
 	}
 
-	_, err = db.Exec("UPDATE RATINGS SET comment = ?, rating = ? WHERE id = ?", rating.Comment, rating.Rating, id.String())
+	_, err = db.Exec("UPDATE RATINGS SET comment = ?, rating = ? WHERE id = ? AND song_id = ?", rating.Comment, rating.Rating, ratingId.String(), songId.String())
 	helpers.CloseDB(db)
 	if err != nil {
-		if err == sql.ErrNoRows {
-			return nil, &models.CustomError{
-				Message: "Rating not found",
-				Code:    http.StatusNotFound,
-			}
-		}
 		return nil, err
 	}
 
-	updatedRating, err := GetRatingById(id)
+	updatedRating, err := GetRatingById(songId, ratingId)
 	return updatedRating, err
 }

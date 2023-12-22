@@ -5,25 +5,27 @@ import (
 	"github.com/gofrs/uuid"
 	"github.com/sirupsen/logrus"
 	"middleware/rating/internal/models"
-	"middleware/rating/internal/repositories/ratings"
+	service "middleware/rating/internal/services/ratings"
 	"net/http"
 )
 
-// GetUser
-// @Tags         users
-// @Summary      Get a user.
-// @Description  Get the user with the specified ID.
-// @Param   id   path    string  true  		 "User UUID formatted ID"
-// @Success 200 {object} models.User		 "User object"
-// @Failure 404 {object} models.CustomError  "User not found"
-// @Failure 422 {object} models.CustomError  "Cannot parse id"
-// @Failure 500 {object} models.CustomError  "Something went wrong"
-// @Router      /users/{id} 	[get]
+// GetRating
+// @Tags         ratings
+// @Summary      Get a rating
+// @Description  Get the rating with the specified ID.
+// @Param   songId     path    string  true   "Song UUID formatted ID"
+// @Param   ratingId   path    string  true   "Rating UUID formatted ID"
+// @Success 200 {object} models.Rating		  "Rating object"
+// @Failure 404 {object} models.CustomError   "Rating not found"
+// @Failure 422 {object} models.CustomError   "Cannot parse id"
+// @Failure 500 {object} models.CustomError   "Something went wrong"
+// @Router      /songs/{song_id}/ratings/{rating_id} [get]
 func GetRating(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	songId, _ := ctx.Value("songId").(uuid.UUID)
 	ratingId, _ := ctx.Value("ratingId").(uuid.UUID)
 
-	rating, err := ratings.GetRatingById(ratingId)
+	rating, err := service.GetRatingById(songId, ratingId)
 	if err != nil {
 		logrus.Errorf("error : %s", err.Error())
 		customError, isCustom := err.(*models.CustomError)

@@ -10,8 +10,8 @@ import (
 	"net/http"
 )
 
-func GetAllRatings() ([]models.Rating, error) {
-	ratings, err := repository.GetAllRatings()
+func GetAllRatings(songId uuid.UUID) ([]models.Rating, error) {
+	ratings, err := repository.GetAllRatings(songId)
 	if err != nil {
 		logrus.Errorf("error retrieving collections : %s", err.Error())
 		return nil, &models.CustomError{
@@ -23,8 +23,8 @@ func GetAllRatings() ([]models.Rating, error) {
 	return ratings, err
 }
 
-func GetRatingById(id uuid.UUID) (*models.Rating, error) {
-	rating, err := repository.GetRatingById(id)
+func GetRatingById(songId uuid.UUID, ratingId uuid.UUID) (*models.Rating, error) {
+	rating, err := repository.GetRatingById(songId, ratingId)
 	if err != nil {
 		if errors.As(err, &sql.ErrNoRows) {
 			return nil, &models.CustomError{
@@ -42,8 +42,8 @@ func GetRatingById(id uuid.UUID) (*models.Rating, error) {
 	return rating, err
 }
 
-func CreateRating(rating models.Rating, ratingId uuid.UUID) (*models.Rating, error) {
-	newRating, err := repository.CreateRating(rating, ratingId)
+func CreateRating(rating models.Rating, songId uuid.UUID) (*models.Rating, error) {
+	createdRating, err := repository.CreateRating(rating, songId)
 	if err != nil {
 		logrus.Errorf("error retrieving collections : %s", err.Error())
 		return nil, &models.CustomError{
@@ -52,18 +52,12 @@ func CreateRating(rating models.Rating, ratingId uuid.UUID) (*models.Rating, err
 		}
 	}
 
-	return newRating, err
+	return createdRating, err
 }
 
-func DeleteRating(id uuid.UUID) error {
-	err := repository.DeleteRating(id)
+func DeleteRating(songId uuid.UUID, ratingId uuid.UUID) error {
+	err := repository.DeleteRating(songId, ratingId)
 	if err != nil {
-		if errors.As(err, &sql.ErrNoRows) {
-			return &models.CustomError{
-				Message: "rating not found",
-				Code:    http.StatusNotFound,
-			}
-		}
 		logrus.Errorf("error retrieving collections : %s", err.Error())
 		return &models.CustomError{
 			Message: "Something went wrong",
@@ -74,8 +68,8 @@ func DeleteRating(id uuid.UUID) error {
 	return err
 }
 
-func UpdateRating(rating models.Rating, id uuid.UUID) (*models.Rating, error) {
-	newRating, err := repository.UpdateRating(rating, id)
+func UpdateRating(rating models.Rating, songId uuid.UUID, ratingId uuid.UUID) (*models.Rating, error) {
+	UpdatedRating, err := repository.UpdateRating(rating, songId, ratingId)
 	if err != nil {
 		if errors.As(err, &sql.ErrNoRows) {
 			return nil, &models.CustomError{
@@ -90,5 +84,5 @@ func UpdateRating(rating models.Rating, id uuid.UUID) (*models.Rating, error) {
 		}
 	}
 
-	return newRating, err
+	return UpdatedRating, err
 }

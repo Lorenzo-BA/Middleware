@@ -5,24 +5,26 @@ import (
 	"github.com/gofrs/uuid"
 	"github.com/sirupsen/logrus"
 	"middleware/rating/internal/models"
-	"middleware/rating/internal/repositories/ratings"
+	service "middleware/rating/internal/services/ratings"
 	"net/http"
 )
 
-// DeleteUser
-// @Tags 		users
-// @Summary 	Delete a user
-// @Description Delete the user with the specified ID.
-// @Param  id 	 path 	 string    true 	 "User UUID formatted ID"
-// @Success 204 {object} models.User		 "No Content"
-// @Failure 422 {object} models.CustomError	 "Cannot parse id"
-// @Failure 500 {object} models.CustomError	 "Something went wrong"
-// @Router 		/users/{id} 	[delete]
+// DeleteRating
+// @Tags      ratings
+// @Summary   Delete a rating
+// @Description Delete the rating with the specified ID.
+// @Param   songId     path  string  true   "Song UUID formatted ID"
+// @Param   ratingId   path  string  true   "Rating UUID formatted ID"
+// @Success 204    						    "No Content"
+// @Failure 422 {object} models.CustomError "Cannot parse id"
+// @Failure 500 {object} models.CustomError "Something went wrong"
+// @Router      /songs/{song_id}/ratings/{rating_id} 	[delete]
 func DeleteRating(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	songId, _ := ctx.Value("songId").(uuid.UUID)
 	ratingId, _ := ctx.Value("ratingId").(uuid.UUID)
 
-	err := ratings.DeleteRating(ratingId)
+	err := service.DeleteRating(songId, ratingId)
 	if err != nil {
 		logrus.Errorf("error : %s", err.Error())
 		customError, isCustom := err.(*models.CustomError)

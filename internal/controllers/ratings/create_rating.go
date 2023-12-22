@@ -5,19 +5,21 @@ import (
 	"github.com/gofrs/uuid"
 	"github.com/sirupsen/logrus"
 	"middleware/rating/internal/models"
-	"middleware/rating/internal/repositories/ratings"
+	service "middleware/rating/internal/services/ratings"
 	"net/http"
 )
 
-// CreateUser
-// @Tags 		users
-// @Summary 	Create a new user
-// @Description Create a new user with the provided name.
-// @Param  user  body 	 models.User  true  "User object to be created"
-// @Success 201 {object} models.User        "Created"
+// CreateRating
+// @Tags 		ratings
+// @Summary 	Create a new rating
+// @Description Create a new rating with the provided content.
+// @Param   rating body  models.Rating true "Rating object to be created"
+// @Param   songId path  string        true "Song UUID formatted ID"
+// @Success 201 {object} models.Rating      "Created"
 // @Failure 400 {object} models.CustomError "Invalid JSON format"
+// @Failure 422 {object} models.CustomError "Cannot parse id"
 // @Failure 500 {object} models.CustomError	"Something went wrong"
-// @Router 		/users/ 			[post]
+// @Router 		/songs/{song_id}/ratings/ 	[post]
 func CreateRating(w http.ResponseWriter, r *http.Request) {
 	var rating models.Rating
 	err := json.NewDecoder(r.Body).Decode(&rating)
@@ -27,9 +29,9 @@ func CreateRating(w http.ResponseWriter, r *http.Request) {
 	}
 
 	ctx := r.Context()
-	ratingId, _ := ctx.Value("ratingId").(uuid.UUID)
+	songId, _ := ctx.Value("songId").(uuid.UUID)
 
-	newRating, err := ratings.CreateRating(rating, ratingId)
+	newRating, err := service.CreateRating(rating, songId)
 	if err != nil {
 		logrus.Errorf("error : %s", err.Error())
 		customError, isCustom := err.(*models.CustomError)
