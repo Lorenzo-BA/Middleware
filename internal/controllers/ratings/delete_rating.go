@@ -12,13 +12,13 @@ import (
 // DeleteRating
 // @Tags      ratings
 // @Summary   Delete a rating
-// @Description Delete the rating with the specified ID.
-// @Param   songId     path  string  true   "Song UUID formatted ID"
-// @Param   ratingId   path  string  true   "Rating UUID formatted ID"
-// @Success 204    						    "No Content"
-// @Failure 422 {object} models.CustomError "Cannot parse id"
-// @Failure 500 {object} models.CustomError "Something went wrong"
-// @Router      /songs/{song_id}/ratings/{rating_id} 	[delete]
+// @Description  Delete the rating with the specified ID.
+// @Param     songId    path    string            true   "Song UUID formatted ID"
+// @Param     ratingId  path    string            true   "Rating UUID formatted ID"
+// @Success   204                                        "No Content"
+// @Failure   422       {object} models.CustomError      "Cannot parse id"
+// @Failure   500       {object} models.CustomError      "Something went wrong"
+// @Router    /songs/{song_id}/ratings/{rating_id}       [delete]
 func DeleteRating(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	songId, _ := ctx.Value("songId").(uuid.UUID)

@@ -13,10 +13,11 @@ import (
 // @Tags         ratings
 // @Summary      Get ratings
 // @Description  Get all ratings.
-// @Success 200  {array}  models.Rating 	 "Array of Rating object"
-// @Failure 422  {object} models.CustomError "Cannot parse id"
-// @Failure 500  {object} models.CustomError "Something went wrong"
-// @Router       /songs/{song_id}/ratings/ 	[get]
+// @Param        songId     path     string          true  "Song UUID formatted ID"
+// @Success      200        {array}  models.Rating         "Array of Rating object"
+// @Failure      422        {object} models.CustomError    "Cannot parse id"
+// @Failure      500        {object} models.CustomError    "Something went wrong"
+// @Router       /songs/{song_id}/ratings/                 [get]
 func GetRatings(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	songId, _ := ctx.Value("songId").(uuid.UUID)

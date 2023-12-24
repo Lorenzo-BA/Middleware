@@ -5,6 +5,7 @@
 Tidy / download modules :
 ```
 go mod tidy
+go get github.com/go-playground/validator
 ```
 Build : 
 ```

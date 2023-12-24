@@ -23,6 +23,33 @@ definitions:
       user_id:
         type: string
     type: object
+  models.RatingCreateRequest:
+    properties:
+      comment:
+        type: string
+      rating:
+        maximum: 5
+        minimum: 1
+        type: integer
+      user_id:
+        type: string
+    required:
+    - comment
+    - rating
+    - user_id
+    type: object
+  models.RatingUpdateRequest:
+    properties:
+      comment:
+        type: string
+      rating:
+        maximum: 5
+        minimum: 1
+        type: integer
+    required:
+    - comment
+    - rating
+    type: object
 info:
   contact:
     email: lorenzo.BARBEY@etu.uca.fr
@@ -34,6 +61,12 @@ paths:
   /songs/{song_id}/ratings/:
     get:
       description: Get all ratings.
+      parameters:
+      - description: Song UUID formatted ID
+        in: path
+        name: songId
+        required: true
+        type: string
       responses:
         "200":
           description: Array of Rating object
@@ -55,24 +88,24 @@ paths:
     post:
       description: Create a new rating with the provided content.
       parameters:
-      - description: Rating object to be created
-        in: body
-        name: rating
-        required: true
-        schema:
-          $ref: '#/definitions/models.Rating'
       - description: Song UUID formatted ID
         in: path
         name: songId
         required: true
         type: string
+      - description: Rating object to be created
+        in: body
+        name: rating
+        required: true
+        schema:
+          $ref: '#/definitions/models.RatingCreateRequest'
       responses:
         "201":
           description: Created
           schema:
             $ref: '#/definitions/models.Rating'
         "400":
-          description: Invalid JSON format
+          description: Invalid request
           schema:
             $ref: '#/definitions/models.CustomError'
         "422":
@@ -156,7 +189,12 @@ paths:
         name: rating
         required: true
         schema:
-          $ref: '#/definitions/models.Rating'
+          $ref: '#/definitions/models.RatingUpdateRequest'
+      - description: Song UUID formatted ID
+        in: path
+        name: songId
+        required: true
+        type: string
       - description: Rating UUID formatted ID
         in: path
         name: ratingId
@@ -168,7 +206,7 @@ paths:
           schema:
             $ref: '#/definitions/models.Rating'
         "400":
-          description: Invalid JSON format
+          description: Invalid request
           schema:
             $ref: '#/definitions/models.CustomError'
         "404":

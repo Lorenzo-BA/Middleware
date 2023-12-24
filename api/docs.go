@@ -25,6 +25,15 @@ const docTemplate = `{
                     "ratings"
                 ],
                 "summary": "Get ratings",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Song UUID formatted ID",
+                        "name": "songId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "Array of Rating object",
@@ -57,20 +66,20 @@ const docTemplate = `{
                 "summary": "Create a new rating",
                 "parameters": [
                     {
-                        "description": "Rating object to be created",
-                        "name": "rating",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/models.Rating"
-                        }
-                    },
-                    {
                         "type": "string",
                         "description": "Song UUID formatted ID",
                         "name": "songId",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "description": "Rating object to be created",
+                        "name": "rating",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.RatingCreateRequest"
+                        }
                     }
                 ],
                 "responses": {
@@ -81,7 +90,7 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "Invalid JSON format",
+                        "description": "Invalid request",
                         "schema": {
                             "$ref": "#/definitions/models.CustomError"
                         }
@@ -115,8 +124,15 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.Rating"
+                            "$ref": "#/definitions/models.RatingUpdateRequest"
                         }
+                    },
+                    {
+                        "type": "string",
+                        "description": "Song UUID formatted ID",
+                        "name": "songId",
+                        "in": "path",
+                        "required": true
                     },
                     {
                         "type": "string",
@@ -134,7 +150,7 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "Invalid JSON format",
+                        "description": "Invalid request",
                         "schema": {
                             "$ref": "#/definitions/models.CustomError"
                         }
@@ -285,6 +301,44 @@ const docTemplate = `{
                 },
                 "user_id": {
                     "type": "string"
+                }
+            }
+        },
+        "models.RatingCreateRequest": {
+            "type": "object",
+            "required": [
+                "comment",
+                "rating",
+                "user_id"
+            ],
+            "properties": {
+                "comment": {
+                    "type": "string"
+                },
+                "rating": {
+                    "type": "integer",
+                    "maximum": 5,
+                    "minimum": 1
+                },
+                "user_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.RatingUpdateRequest": {
+            "type": "object",
+            "required": [
+                "comment",
+                "rating"
+            ],
+            "properties": {
+                "comment": {
+                    "type": "string"
+                },
+                "rating": {
+                    "type": "integer",
+                    "maximum": 5,
+                    "minimum": 1
                 }
             }
         }

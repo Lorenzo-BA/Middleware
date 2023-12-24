@@ -10,21 +10,26 @@ import (
 )
 
 // CreateRating
-// @Tags 		ratings
-// @Summary 	Create a new rating
-// @Description Create a new rating with the provided content.
-// @Param   rating body  models.Rating true "Rating object to be created"
-// @Param   songId path  string        true "Song UUID formatted ID"
-// @Success 201 {object} models.Rating      "Created"
-// @Failure 400 {object} models.CustomError "Invalid JSON format"
-// @Failure 422 {object} models.CustomError "Cannot parse id"
-// @Failure 500 {object} models.CustomError	"Something went wrong"
-// @Router 		/songs/{song_id}/ratings/ 	[post]
+// @Tags      ratings
+// @Summary   Create a new rating
+// @Description  Create a new rating with the provided content.
+// @Param     songId   path     string                     true "Song UUID formatted ID"
+// @Param     rating   body     models.RatingCreateRequest true "Rating object to be created"
+// @Success   201      {object} models.Rating                   "Created"
+// @Failure   400      {object} models.CustomError              "Invalid request"
+// @Failure   422      {object} models.CustomError              "Cannot parse id"
+// @Failure   500      {object} models.CustomError              "Something went wrong"
+// @Router    /songs/{song_id}/ratings/                         [post]
 func CreateRating(w http.ResponseWriter, r *http.Request) {
-	var rating models.Rating
+	var rating models.RatingCreateRequest
 	err := json.NewDecoder(r.Body).Decode(&rating)
 	if err != nil {
 		http.Error(w, "Invalid JSON format", http.StatusBadRequest)
+		return
+	}
+	err = models.ValidateRatingCreateRequest(rating)
+	if err != nil {
+		http.Error(w, "Invalid request payload", http.StatusBadRequest)
 		return
 	}
 

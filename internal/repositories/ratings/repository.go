@@ -13,7 +13,7 @@ func GetAllRatings(songId uuid.UUID) ([]models.Rating, error) {
 		return nil, err
 	}
 
-	rows, err := db.Query("SELECT * FROM RATINGS WHERE id = ?", songId.String())
+	rows, err := db.Query("SELECT * FROM RATINGS WHERE song_id = ?", songId.String())
 	helpers.CloseDB(db)
 	if err != nil {
 		return nil, err
@@ -51,7 +51,7 @@ func GetRatingById(songId uuid.UUID, ratingId uuid.UUID) (*models.Rating, error)
 	return &rating, err
 }
 
-func CreateRating(rating models.Rating, songId uuid.UUID) (*models.Rating, error) {
+func CreateRating(rating models.RatingCreateRequest, songId uuid.UUID) (*models.Rating, error) {
 	db, err := helpers.OpenDB()
 	if err != nil {
 		return nil, err
@@ -89,7 +89,7 @@ func DeleteRating(songId uuid.UUID, ratingId uuid.UUID) error {
 	return err
 }
 
-func UpdateRating(rating models.Rating, songId uuid.UUID, ratingId uuid.UUID) (*models.Rating, error) {
+func UpdateRating(rating models.RatingUpdateRequest, songId uuid.UUID, ratingId uuid.UUID) (*models.Rating, error) {
 	db, err := helpers.OpenDB()
 	if err != nil {
 		return nil, err

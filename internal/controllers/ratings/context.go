@@ -17,7 +17,7 @@ func CtxSongId(next http.Handler) http.Handler {
 		if err != nil {
 			logrus.Errorf("error : %d - Parsing error : %s", http.StatusUnprocessableEntity, err.Error())
 			customError := &models.CustomError{
-				Message: fmt.Sprintf("cannot parse id (%s) as UUID", chi.URLParam(r, "id")),
+				Message: fmt.Sprintf("cannot parse song ID (%s) as UUID", chi.URLParam(r, "id")),
 				Code:    http.StatusUnprocessableEntity,
 			}
 			w.WriteHeader(customError.Code)
@@ -37,7 +37,7 @@ func CtxRatingId(next http.Handler) http.Handler {
 		if err != nil {
 			logrus.Errorf("error : %d - Parsing error : %s", http.StatusUnprocessableEntity, err.Error())
 			customError := &models.CustomError{
-				Message: fmt.Sprintf("cannot parse id (%s) as UUID", chi.URLParam(r, "id")),
+				Message: fmt.Sprintf("cannot parse rating ID (%s) as UUID", chi.URLParam(r, "id")),
 				Code:    http.StatusUnprocessableEntity,
 			}
 			w.WriteHeader(customError.Code)

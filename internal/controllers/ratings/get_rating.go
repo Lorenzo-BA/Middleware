@@ -13,13 +13,13 @@ import (
 // @Tags         ratings
 // @Summary      Get a rating
 // @Description  Get the rating with the specified ID.
-// @Param   songId     path    string  true   "Song UUID formatted ID"
-// @Param   ratingId   path    string  true   "Rating UUID formatted ID"
-// @Success 200 {object} models.Rating		  "Rating object"
-// @Failure 404 {object} models.CustomError   "Rating not found"
-// @Failure 422 {object} models.CustomError   "Cannot parse id"
-// @Failure 500 {object} models.CustomError   "Something went wrong"
-// @Router      /songs/{song_id}/ratings/{rating_id} [get]
+// @Param        songId     path    string            true   "Song UUID formatted ID"
+// @Param        ratingId   path    string            true   "Rating UUID formatted ID"
+// @Success      200        {object} models.Rating           "Rating object"
+// @Failure      404        {object} models.CustomError      "Rating not found"
+// @Failure      422        {object} models.CustomError      "Cannot parse id"
+// @Failure      500        {object} models.CustomError      "Something went wrong"
+// @Router       /songs/{song_id}/ratings/{rating_id}        [get]
 func GetRating(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	songId, _ := ctx.Value("songId").(uuid.UUID)
