@@ -38,7 +38,7 @@ func UpdateRating(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	ratingNew, err := service.UpdateRating(rating, songId, ratingId)
+	newRating, err := service.UpdateRating(rating, songId, ratingId)
 	if err != nil {
 		logrus.Errorf("error : %s", err.Error())
 		customError, isCustom := err.(*models.CustomError)
@@ -53,7 +53,7 @@ func UpdateRating(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusOK)
-	body, _ := json.Marshal(ratingNew)
+	body, _ := json.Marshal(newRating)
 	_, _ = w.Write(body)
 	return
 }

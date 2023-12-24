@@ -70,8 +70,8 @@ func CreateRating(rating models.RatingCreateRequest, songId uuid.UUID) (*models.
 		return nil, err
 	}
 
-	createdRating, err := GetRatingById(songId, randomUUID)
-	return createdRating, err
+	newRating, err := GetRatingById(songId, randomUUID)
+	return newRating, err
 }
 
 func DeleteRating(songId uuid.UUID, ratingId uuid.UUID) error {
@@ -101,6 +101,6 @@ func UpdateRating(rating models.RatingUpdateRequest, songId uuid.UUID, ratingId 
 		return nil, err
 	}
 
-	updatedRating, err := GetRatingById(songId, ratingId)
-	return updatedRating, err
+	newRating, err := GetRatingById(songId, ratingId)
+	return newRating, err
 }

@@ -43,7 +43,7 @@ func GetRatingById(songId uuid.UUID, ratingId uuid.UUID) (*models.Rating, error)
 }
 
 func CreateRating(rating models.RatingCreateRequest, songId uuid.UUID) (*models.Rating, error) {
-	createdRating, err := repository.CreateRating(rating, songId)
+	newRating, err := repository.CreateRating(rating, songId)
 	if err != nil {
 		logrus.Errorf("error retrieving collections : %s", err.Error())
 		return nil, &models.CustomError{
@@ -52,7 +52,7 @@ func CreateRating(rating models.RatingCreateRequest, songId uuid.UUID) (*models.
 		}
 	}
 
-	return createdRating, err
+	return newRating, err
 }
 
 func DeleteRating(songId uuid.UUID, ratingId uuid.UUID) error {
@@ -69,7 +69,7 @@ func DeleteRating(songId uuid.UUID, ratingId uuid.UUID) error {
 }
 
 func UpdateRating(rating models.RatingUpdateRequest, songId uuid.UUID, ratingId uuid.UUID) (*models.Rating, error) {
-	UpdatedRating, err := repository.UpdateRating(rating, songId, ratingId)
+	newRating, err := repository.UpdateRating(rating, songId, ratingId)
 	if err != nil {
 		if errors.As(err, &sql.ErrNoRows) {
 			return nil, &models.CustomError{
@@ -84,5 +84,5 @@ func UpdateRating(rating models.RatingUpdateRequest, songId uuid.UUID, ratingId 
 		}
 	}
 
-	return UpdatedRating, err
+	return newRating, err
 }
