@@ -42,7 +42,7 @@ func GetUserById(id uuid.UUID) (*models.User, error) {
 	return user, err
 }
 
-func CreateUser(user models.User) (*models.User, error) {
+func CreateUser(user models.UserRequest) (*models.User, error) {
 	newUser, err := repository.CreateUser(user)
 	if err != nil {
 		logrus.Errorf("error retrieving collections : %s", err.Error())
@@ -74,7 +74,7 @@ func DeleteUser(id uuid.UUID) error {
 	return err
 }
 
-func UpdateUser(user models.User, id uuid.UUID) (*models.User, error) {
+func UpdateUser(user models.UserRequest, id uuid.UUID) (*models.User, error) {
 	newUser, err := repository.UpdateUser(user, id)
 	if err != nil {
 		if errors.As(err, &sql.ErrNoRows) {

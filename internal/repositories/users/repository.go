@@ -1,11 +1,9 @@
 package users
 
 import (
-	"database/sql"
 	"github.com/gofrs/uuid"
 	"middleware/user/internal/helpers"
 	"middleware/user/internal/models"
-	"net/http"
 	"time"
 )
 
@@ -47,19 +45,13 @@ func GetUserById(id uuid.UUID) (*models.User, error) {
 	var user models.User
 	err = row.Scan(&user.Id, &user.InscriptionDate, &user.Name, &user.Username)
 	if err != nil {
-		if err == sql.ErrNoRows {
-			return nil, &models.CustomError{
-				Message: "User not found",
-				Code:    http.StatusNotFound,
-			}
-		}
 		return nil, err
 	}
 
 	return &user, err
 }
 
-func CreateUser(user models.User) (*models.User, error) {
+func CreateUser(user models.UserRequest) (*models.User, error) {
 	db, err := helpers.OpenDB()
 	if err != nil {
 		return nil, err
@@ -78,8 +70,8 @@ func CreateUser(user models.User) (*models.User, error) {
 		return nil, err
 	}
 
-	createdUser, err := GetUserById(randomUUID)
-	return createdUser, err
+	newUser, err := GetUserById(randomUUID)
+	return newUser, err
 }
 
 func DeleteUser(id uuid.UUID) error {
@@ -97,7 +89,7 @@ func DeleteUser(id uuid.UUID) error {
 	return err
 }
 
-func UpdateUser(user models.User, id uuid.UUID) (*models.User, error) {
+func UpdateUser(user models.UserRequest, id uuid.UUID) (*models.User, error) {
 	db, err := helpers.OpenDB()
 	if err != nil {
 		return nil, err
@@ -106,15 +98,9 @@ func UpdateUser(user models.User, id uuid.UUID) (*models.User, error) {
 	_, err = db.Exec("UPDATE USERS SET name = ?, username = ? WHERE id = ?", user.Username, user.Name, id.String())
 	helpers.CloseDB(db)
 	if err != nil {
-		if err == sql.ErrNoRows {
-			return nil, &models.CustomError{
-				Message: "User not found",
-				Code:    http.StatusNotFound,
-			}
-		}
 		return nil, err
 	}
 
-	updatedUser, err := GetUserById(id)
-	return updatedUser, err
+	newUser, err := GetUserById(id)
+	return newUser, err
 }

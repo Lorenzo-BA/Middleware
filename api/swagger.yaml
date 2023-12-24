@@ -19,6 +19,16 @@ definitions:
       username:
         type: string
     type: object
+  models.UserRequest:
+    properties:
+      name:
+        type: string
+      username:
+        type: string
+    required:
+    - name
+    - username
+    type: object
 info:
   contact:
     email: lorenzo.BARBEY@etu.uca.fr
@@ -52,14 +62,14 @@ paths:
         name: user
         required: true
         schema:
-          $ref: '#/definitions/models.User'
+          $ref: '#/definitions/models.UserRequest'
       responses:
         "201":
           description: Created
           schema:
             $ref: '#/definitions/models.User'
         "400":
-          description: Invalid JSON format
+          description: Invalid request
           schema:
             $ref: '#/definitions/models.CustomError'
         "500":
@@ -130,7 +140,7 @@ paths:
         name: user
         required: true
         schema:
-          $ref: '#/definitions/models.User'
+          $ref: '#/definitions/models.UserRequest'
       - description: User UUID formatted ID
         in: path
         name: id
@@ -142,7 +152,7 @@ paths:
           schema:
             $ref: '#/definitions/models.User'
         "400":
-          description: Invalid JSON format
+          description: Invalid request
           schema:
             $ref: '#/definitions/models.CustomError'
         "404":

@@ -56,7 +56,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.User"
+                            "$ref": "#/definitions/models.UserRequest"
                         }
                     }
                 ],
@@ -68,7 +68,7 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "Invalid JSON format",
+                        "description": "Invalid request",
                         "schema": {
                             "$ref": "#/definitions/models.CustomError"
                         }
@@ -138,7 +138,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.User"
+                            "$ref": "#/definitions/models.UserRequest"
                         }
                     },
                     {
@@ -157,7 +157,7 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "Invalid JSON format",
+                        "description": "Invalid request",
                         "schema": {
                             "$ref": "#/definitions/models.CustomError"
                         }
@@ -242,6 +242,21 @@ const docTemplate = `{
                 "inscription_date": {
                     "type": "string"
                 },
+                "name": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.UserRequest": {
+            "type": "object",
+            "required": [
+                "name",
+                "username"
+            ],
+            "properties": {
                 "name": {
                     "type": "string"
                 },

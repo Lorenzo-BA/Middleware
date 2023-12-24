@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"github.com/sirupsen/logrus"
 	"middleware/user/internal/models"
-	"middleware/user/internal/services/users"
+	service "middleware/user/internal/services/users"
 	"net/http"
 )
 
@@ -12,11 +12,11 @@ import (
 // @Tags         users
 // @Summary      Get users.
 // @Description  Get all users.
-// @Success 200 {array}  models.User 		"Array of User object"
-// @Failure 500 {object} models.CustomError "Something went wrong"
-// @Router      /users/ 		[get]
+// @Success      200       {array}    models.User              "Array of User object"
+// @Failure      500       {object}   models.CustomError       "Something went wrong"
+// @Router       /users/      [get]
 func GetUsers(w http.ResponseWriter, _ *http.Request) {
-	users, err := users.GetAllUsers()
+	users, err := service.GetAllUsers()
 	if err != nil {
 		logrus.Errorf("error : %s", err.Error())
 		customError, isCustom := err.(*models.CustomError)
