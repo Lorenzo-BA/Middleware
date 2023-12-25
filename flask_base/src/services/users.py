@@ -9,12 +9,16 @@ from src.models.user import User as UserModel
 from src.models.http_exceptions import *
 import src.repositories.users as users_repository
 
+users_url = "http://localhost:8080/users/"  # URL de l'API users (golang)
 
-users_url = "http://localhost:4000/users/"  # URL de l'API users (golang)
+
+def get_users():
+    response = requests.request(method="GET", url=users_url)
+    return response.json(), response.status_code
 
 
-def get_user(id):
-    response = requests.request(method="GET", url=users_url+id)
+def get_user(user_id):
+    response = requests.request(method="GET", url=users_url + user_id)
     return response.json(), response.status_code
 
 
@@ -50,7 +54,7 @@ def modify_user(id, user_update):
     response = None
     if not UserSchema.is_empty(user_schema):
         # on lance la requête de modification
-        response = requests.request(method="PUT", url=users_url+id, json=user_schema)
+        response = requests.request(method="PUT", url=users_url + id, json=user_schema)
         if response.status_code != 200:
             return response.json(), response.status_code
 
@@ -71,6 +75,18 @@ def modify_user(id, user_update):
             raise Conflict
 
     return (response.json(), response.status_code) if response else get_user(id)
+
+
+def delete_user(user_id):
+    response = requests.request(method="DELETE", url=users_url + user_id)
+    if response.status_code != 204:
+        return "Something went wrong", response.status_code
+    try:
+        users_repository.delete_user(id)
+    except Exception:
+        raise SomethingWentWrong
+
+    return "", response.status_code
 
 
 def get_user_from_db(username):
