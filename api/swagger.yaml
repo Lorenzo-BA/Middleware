@@ -1,0 +1,58 @@
+basePath: /
+definitions:
+  models.Song:
+    properties:
+      code:
+        type: integer
+      content:
+        type: string
+      id:
+        type: string
+    type: object
+info:
+  contact:
+    email: justine.bachelard@ext.uca.fr
+    name: Justine Bachelard.
+  description: API to manage Songs.
+  title: middleware/example
+  version: 1.0.0
+paths:
+  /Songs:
+    get:
+      description: Get Songs.
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Song'
+            type: array
+        "500":
+          description: Something went wrong
+      summary: Get Songs.
+      tags:
+      - Songs
+  /Songs/{id}:
+    get:
+      description: Get a collection.
+      parameters:
+      - description: Song UUID formatted ID
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Song'
+        "422":
+          description: Cannot parse id
+        "500":
+          description: Something went wrong
+      summary: Get a collection.
+      tags:
+      - Songs
+schemes:
+- http
+swagger: "2.0"
