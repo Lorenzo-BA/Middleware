@@ -6,6 +6,7 @@ from flask_login import login_user, logout_user, login_required, current_user
 from src.models.http_exceptions import *
 from src.schemas.errors import *
 from src.schemas.user_auth import UserLoginSchema, UserRegisterSchema
+from src.schemas.user import UserUpdateSchema
 from src.schemas.rating import *
 from src.schemas.song import *
 import src.services.users as users_service
@@ -214,6 +215,29 @@ def introspect():
 @auth.route('/users/', methods=["GET"])
 @login_required
 def get_users():
+    """
+    ---
+    get:
+      description: Get a list of users
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: [User]
+            application/yaml:
+              schema: [User]
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema: Unauthorized
+            application/yaml:
+              schema: Unauthorized
+      tags:
+          - users
+    """
+    #TODO
     return users_service.get_users()
 
 
@@ -226,18 +250,35 @@ def get_user(user_id):
 @auth.route('/users/<user_id>', methods=["DELETE"])
 @login_required
 def delete_user(user_id):
-    return users_service.delete_user(user_id)
+    try:
+        return users_service.delete_user(user_id)
+    except Forbidden as e:
+        error = ForbiddenSchema().loads(json.dumps({"message": "Forbidden: Resource is locked."}))
+        return error, error.get("code")
+    except SomethingWentWrong:
+        error = SomethingWentWrongSchema().loads("{}")
+        return error, error.get("code")
+
+
 
 
 @auth.route('/users/<user_id>', methods=["PUT"])
 @login_required
 def update_user(user_id):
     try:
-        user_modified = UserRegisterSchema().loads(json_data=request.data.decode('utf-8'))
+        user_modified = UserUpdateSchema().loads(json_data=request.data.decode('utf-8'))
     except ValidationError as e:
         error = UnprocessableEntitySchema().loads(json.dumps({"message": e.messages.__str__()}))
         return error, error.get("code")
-    return users_service.modify_user(user_id, user_modified)
+
+    try:
+        return users_service.update_user(user_id, user_modified)
+    except Forbidden:
+        error = ForbiddenSchema().loads(json.dumps({"message": "Forbidden: Resource is locked."}))
+        return error, error.get("code")
+    except SomethingWentWrong:
+        error = SomethingWentWrongSchema().loads("{}")
+        return error, error.get("code")
 
 
 @auth.route('/songs/', methods=["GET"])

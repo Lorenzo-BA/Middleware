@@ -9,6 +9,7 @@ from src.models.user import User as UserModel
 from src.models.http_exceptions import *
 import src.repositories.users as users_repository
 
+
 users_url = "http://localhost:8080/users/"  # URL de l'API users (golang)
 
 
@@ -44,25 +45,25 @@ def create_user(user_register):
     return response.json(), response.status_code
 
 
-def modify_user(id, user_update):
+def update_user(user_id, user):
     # on vérifie que l'utilisateur se modifie lui-même
-    if id != current_user.id:
+    if user_id != current_user.id:
         raise Forbidden
 
     # s'il y a quelque chose à changer côté API (username, name)
-    user_schema = UserSchema().loads(json.dumps(user_update), unknown=EXCLUDE)
+    user_schema = UserSchema().loads(json.dumps(user), unknown=EXCLUDE)
     response = None
     if not UserSchema.is_empty(user_schema):
         # on lance la requête de modification
-        response = requests.request(method="PUT", url=users_url + id, json=user_schema)
+        response = requests.request(method="PUT", url=users_url + user_id, json=user_schema)
         if response.status_code != 200:
             return response.json(), response.status_code
 
     # s'il y a quelque chose à changer côté BDD
-    user_model = UserModel.from_dict_with_clear_password(user_update)
+    user_model = UserModel.from_dict_with_clear_password(user)
     if not user_model.is_empty():
-        user_model.id = id
-        found_user = users_repository.get_user_from_id(id)
+        user_model.id = user_id
+        found_user = users_repository.get_user_from_id(user_id)
         if not user_model.username:
             user_model.username = found_user.username
         if not user_model.encrypted_password:
@@ -74,15 +75,19 @@ def modify_user(id, user_update):
                 raise UnprocessableEntity
             raise Conflict
 
-    return (response.json(), response.status_code) if response else get_user(id)
+    return response.json(), response.status_code
 
 
 def delete_user(user_id):
+    if user_id != current_user.id:
+        raise Forbidden
+
     response = requests.request(method="DELETE", url=users_url + user_id)
     if response.status_code != 204:
-        return "Something went wrong", response.status_code
+        return response.json(), response.status_code
+
     try:
-        users_repository.delete_user(id)
+        users_repository.delete_user(user_id)
     except Exception:
         raise SomethingWentWrong
 
