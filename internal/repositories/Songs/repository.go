@@ -59,7 +59,7 @@ func RequestCreateSong(song models.Song) (*models.Song, error) {
 	}
 	randomUUID, err := uuid.NewV4()
 	_, err = db.Exec(
-		"INSERT INTO Songs (id, content, music_title, artist_name, file_name,  published_date) VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP)",
+		"INSERT INTO Songs (id, content, Music_title, Artist_name, File_name,  Published_date) VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP)",
 		randomUUID.String(),
 		song.Content,
 		song.Music_title,
