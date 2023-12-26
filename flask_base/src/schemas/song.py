@@ -2,29 +2,30 @@ from marshmallow import Schema, fields, validates_schema, ValidationError
 
 # Schéma utilisateur de sortie (renvoyé au front)
 class SongSchema(Schema):
-    music_title = fields.String(description="Music_title")
-    artist = fields.String(description="Artist_name")
-    file_name = fields.String(description="File_name")
+    music_title = fields.String(description="title")
+    file_name = fields.String(description="file_name")
+    artist = fields.String(description="artist")
+
 
     @staticmethod
     def is_empty(obj):
         return (
-                not obj.get("Music_title") or obj["Music_title"] == ""
+                not obj.get("title") or obj["title"] == ""
         ) and not (
-                obj.get("Artist_name") or obj["Artist_name"] == ""
+                obj.get("file_name") or obj["file_name"] == ""
         ) and not (
-                obj.get("File_name") or obj["File_name"] == ""
+                obj.get("artist") or obj["artist"] == ""
         )
 
 class BaseSongSchema(Schema):
-    artist = fields.String(description="Music_title")
-    file_name = fields.String(description="Artist_name")
-    music_title = fields.String(description="File_name")
+    artist = fields.String(description="title")
+    file_name = fields.String(description="file_name")
+    music_title = fields.String(description="artist")
 
 # Schéma utilisateur de modification (name, username, password)
 class SongUpdateSchema(BaseSongSchema):
     # permet de définir dans quelles conditions le schéma est validé ou non
     @validates_schema
     def validates_schemas(self, data, **kwargs):
-        if not any(key in data and data[key] != "" for key in ["Music_title", "Artist_name", "File_name"]):
-            raise ValidationError("At least one of ['Music_title', 'Artist_name', 'File_name'] must be specified")
+        if not any(key in data and data[key] != "" for key in ["title", "file_name", "artist"]):
+            raise ValidationError("At least one of ['title', 'file_name', 'artist'] must be specified")
