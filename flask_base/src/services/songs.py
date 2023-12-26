@@ -29,7 +29,8 @@ def create_song(song):
 
     # on récupère le schéma utilisateur pour la requête vers l'API users
     # on crée l'utilisateur côté API users
-    song_schema = SongSchema().loads(json.dumps(song), unknown=EXCLUDE)
+
+    song_schema = SongSchema().loads(json.dumps(song, default=str), unknown=EXCLUDE)
     print(song_schema)
 
     response = requests.post(SONGS_API_URL, json=song)

@@ -2,7 +2,9 @@ from marshmallow import Schema, fields, validates_schema, ValidationError
 
 # Schéma utilisateur de sortie (renvoyé au front)
 class SongSchema(Schema):
-    music_title = fields.String(description="title")
+    id = fields.String(description="UUID")
+    content = fields.String(description="content")
+    title = fields.String(description="title")
     file_name = fields.String(description="file_name")
     artist = fields.String(description="artist")
 
@@ -18,9 +20,9 @@ class SongSchema(Schema):
         )
 
 class BaseSongSchema(Schema):
-    artist = fields.String(description="title")
+    title = fields.String(description="title")
     file_name = fields.String(description="file_name")
-    music_title = fields.String(description="artist")
+    artist = fields.String(description="artist")
 
 # Schéma utilisateur de modification (name, username, password)
 class SongUpdateSchema(BaseSongSchema):
