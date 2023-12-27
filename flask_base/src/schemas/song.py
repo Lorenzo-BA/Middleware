@@ -7,7 +7,8 @@ class SongSchema(Schema):
     title = fields.String(description="title")
     file_name = fields.String(description="file_name")
     artist = fields.String(description="artist")
-
+    Published_date = fields.DateTime(description="Published_date")
+    Code = fields.Integer(description="Code")
 
     @staticmethod
     def is_empty(obj):
@@ -23,6 +24,8 @@ class BaseSongSchema(Schema):
     title = fields.String(description="title")
     file_name = fields.String(description="file_name")
     artist = fields.String(description="artist")
+    Published_date = fields.DateTime(description="Published_date")
+    Code = fields.Integer(description="Code")
 
 # Schéma utilisateur de modification (name, username, password)
 class SongUpdateSchema(BaseSongSchema):
