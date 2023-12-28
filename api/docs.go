@@ -10,24 +10,24 @@ const docTemplate = `{
         "description": "{{escape .Description}}",
         "title": "{{.Title}}",
         "contact": {
-            "name": "Justine Bachelard.",
-            "email": "justine.bachelard@ext.uca.fr"
+            "name": "Khaled AL HENDI",
+            "email": "Khaled.AL_HENDI@etu.uca.fr"
         },
         "version": "{{.Version}}"
     },
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/Songs": {
+        "/songs/": {
             "get": {
-                "description": "Get Songs.",
+                "description": "Get all songs.",
                 "tags": [
-                    "Songs"
+                    "songs"
                 ],
-                "summary": "Get Songs.",
+                "summary": "Get songs.",
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Array of Song object",
                         "schema": {
                             "type": "array",
                             "items": {
@@ -36,18 +36,59 @@ const docTemplate = `{
                         }
                     },
                     "500": {
-                        "description": "Something went wrong"
+                        "description": "Something went wrong",
+                        "schema": {
+                            "$ref": "#/definitions/models.CustomError"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Create a new song with the provided parameters.",
+                "tags": [
+                    "songs"
+                ],
+                "summary": "Create a new song",
+                "parameters": [
+                    {
+                        "description": "Song object to be created",
+                        "name": "song",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.SongRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/models.Song"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request",
+                        "schema": {
+                            "$ref": "#/definitions/models.CustomError"
+                        }
+                    },
+                    "500": {
+                        "description": "Something went wrong",
+                        "schema": {
+                            "$ref": "#/definitions/models.CustomError"
+                        }
                     }
                 }
             }
         },
-        "/Songs/{id}": {
+        "/songs/{id}": {
             "get": {
-                "description": "Get a collection.",
+                "description": "Get the song with the specified ID.",
                 "tags": [
-                    "Songs"
+                    "songs"
                 ],
-                "summary": "Get a collection.",
+                "summary": "Get a song.",
                 "parameters": [
                     {
                         "type": "string",
@@ -59,32 +100,174 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Song object",
                         "schema": {
                             "$ref": "#/definitions/models.Song"
                         }
                     },
+                    "404": {
+                        "description": "Song not found",
+                        "schema": {
+                            "$ref": "#/definitions/models.CustomError"
+                        }
+                    },
                     "422": {
-                        "description": "Cannot parse id"
+                        "description": "Cannot parse id",
+                        "schema": {
+                            "$ref": "#/definitions/models.CustomError"
+                        }
                     },
                     "500": {
-                        "description": "Something went wrong"
+                        "description": "Something went wrong",
+                        "schema": {
+                            "$ref": "#/definitions/models.CustomError"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "Update the song with the specified ID.",
+                "tags": [
+                    "songs"
+                ],
+                "summary": "Update a song.",
+                "parameters": [
+                    {
+                        "description": "Song object to be updated",
+                        "name": "song",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.SongRequest"
+                        }
+                    },
+                    {
+                        "type": "string",
+                        "description": "Song UUID formatted ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Song object updated",
+                        "schema": {
+                            "$ref": "#/definitions/models.Song"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request",
+                        "schema": {
+                            "$ref": "#/definitions/models.CustomError"
+                        }
+                    },
+                    "404": {
+                        "description": "Song not found",
+                        "schema": {
+                            "$ref": "#/definitions/models.CustomError"
+                        }
+                    },
+                    "422": {
+                        "description": "Cannot parse id",
+                        "schema": {
+                            "$ref": "#/definitions/models.CustomError"
+                        }
+                    },
+                    "500": {
+                        "description": "Something went wrong",
+                        "schema": {
+                            "$ref": "#/definitions/models.CustomError"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Delete the song with the specified ID.",
+                "tags": [
+                    "songs"
+                ],
+                "summary": "Delete a song",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Song UUID formatted ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content",
+                        "schema": {
+                            "type": "null"
+                        }
+                    },
+                    "422": {
+                        "description": "Cannot parse id",
+                        "schema": {
+                            "$ref": "#/definitions/models.CustomError"
+                        }
+                    },
+                    "500": {
+                        "description": "Something went wrong",
+                        "schema": {
+                            "$ref": "#/definitions/models.CustomError"
+                        }
                     }
                 }
             }
         }
     },
     "definitions": {
-        "models.Song": {
+        "models.CustomError": {
             "type": "object",
             "properties": {
                 "code": {
-                    "type": "integer"
+                    "type": "integer",
+                    "default": 200
                 },
-                "content": {
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.Song": {
+            "type": "object",
+            "properties": {
+                "Published_date": {
+                    "type": "string"
+                },
+                "artist": {
+                    "type": "string"
+                },
+                "file_name": {
                     "type": "string"
                 },
                 "id": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.SongRequest": {
+            "type": "object",
+            "required": [
+                "artist",
+                "file_name",
+                "title"
+            ],
+            "properties": {
+                "artist": {
+                    "type": "string"
+                },
+                "file_name": {
+                    "type": "string"
+                },
+                "title": {
                     "type": "string"
                 }
             }
@@ -98,7 +281,7 @@ var SwaggerInfo = &swag.Spec{
 	Host:             "",
 	BasePath:         "/",
 	Schemes:          []string{"http"},
-	Title:            "middleware/example",
+	Title:            "middleware/song",
 	Description:      "API to manage Songs.",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,

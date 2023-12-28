@@ -1,11 +1,11 @@
 package internal
 
-// @title        middleware/example
+// @title        middleware/song
 // @version      1.0.0
 // @description  API to manage Songs.
 
-// @contact.name   Justine Bachelard.
-// @contact.email  justine.bachelard@ext.uca.fr
+// @contact.name   Khaled AL HENDI
+// @contact.email  Khaled.AL_HENDI@etu.uca.fr
 
 // @schemes   http
 // @BasePath  /

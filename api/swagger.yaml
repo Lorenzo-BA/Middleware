@@ -1,40 +1,116 @@
 basePath: /
 definitions:
-  models.Song:
+  models.CustomError:
     properties:
       code:
+        default: 200
         type: integer
-      content:
+      message:
+        type: string
+    type: object
+  models.Song:
+    properties:
+      Published_date:
+        type: string
+      artist:
+        type: string
+      file_name:
         type: string
       id:
         type: string
+      title:
+        type: string
+    type: object
+  models.SongRequest:
+    properties:
+      artist:
+        type: string
+      file_name:
+        type: string
+      title:
+        type: string
+    required:
+    - artist
+    - file_name
+    - title
     type: object
 info:
   contact:
-    email: justine.bachelard@ext.uca.fr
-    name: Justine Bachelard.
+    email: Khaled.AL_HENDI@etu.uca.fr
+    name: Khaled AL HENDI
   description: API to manage Songs.
-  title: middleware/example
+  title: middleware/song
   version: 1.0.0
 paths:
-  /Songs:
+  /songs/:
     get:
-      description: Get Songs.
+      description: Get all songs.
       responses:
         "200":
-          description: OK
+          description: Array of Song object
           schema:
             items:
               $ref: '#/definitions/models.Song'
             type: array
         "500":
           description: Something went wrong
-      summary: Get Songs.
+          schema:
+            $ref: '#/definitions/models.CustomError'
+      summary: Get songs.
       tags:
-      - Songs
-  /Songs/{id}:
+      - songs
+    post:
+      description: Create a new song with the provided parameters.
+      parameters:
+      - description: Song object to be created
+        in: body
+        name: song
+        required: true
+        schema:
+          $ref: '#/definitions/models.SongRequest'
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.Song'
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/models.CustomError'
+        "500":
+          description: Something went wrong
+          schema:
+            $ref: '#/definitions/models.CustomError'
+      summary: Create a new song
+      tags:
+      - songs
+  /songs/{id}:
+    delete:
+      description: Delete the song with the specified ID.
+      parameters:
+      - description: Song UUID formatted ID
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "204":
+          description: No Content
+          schema:
+            type: "null"
+        "422":
+          description: Cannot parse id
+          schema:
+            $ref: '#/definitions/models.CustomError'
+        "500":
+          description: Something went wrong
+          schema:
+            $ref: '#/definitions/models.CustomError'
+      summary: Delete a song
+      tags:
+      - songs
     get:
-      description: Get a collection.
+      description: Get the song with the specified ID.
       parameters:
       - description: Song UUID formatted ID
         in: path
@@ -43,16 +119,62 @@ paths:
         type: string
       responses:
         "200":
-          description: OK
+          description: Song object
           schema:
             $ref: '#/definitions/models.Song'
+        "404":
+          description: Song not found
+          schema:
+            $ref: '#/definitions/models.CustomError'
         "422":
           description: Cannot parse id
+          schema:
+            $ref: '#/definitions/models.CustomError'
         "500":
           description: Something went wrong
-      summary: Get a collection.
+          schema:
+            $ref: '#/definitions/models.CustomError'
+      summary: Get a song.
       tags:
-      - Songs
+      - songs
+    put:
+      description: Update the song with the specified ID.
+      parameters:
+      - description: Song object to be updated
+        in: body
+        name: song
+        required: true
+        schema:
+          $ref: '#/definitions/models.SongRequest'
+      - description: Song UUID formatted ID
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: Song object updated
+          schema:
+            $ref: '#/definitions/models.Song'
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/models.CustomError'
+        "404":
+          description: Song not found
+          schema:
+            $ref: '#/definitions/models.CustomError'
+        "422":
+          description: Cannot parse id
+          schema:
+            $ref: '#/definitions/models.CustomError'
+        "500":
+          description: Something went wrong
+          schema:
+            $ref: '#/definitions/models.CustomError'
+      summary: Update a song.
+      tags:
+      - songs
 schemes:
 - http
 swagger: "2.0"

@@ -1,4 +1,4 @@
-# TP middleware example
+# TP middleware song
 
 ## Run
 
@@ -8,11 +8,11 @@ go mod tidy
 ```
 Build : 
 ```
-go build -o middleware_collections cmd/main.go
+go build -o middleware_songs cmd/main.go
 ```
 Run : 
 ```
-./middleware_collections
+./middleware_songs
 ```
 
 ## Documentation

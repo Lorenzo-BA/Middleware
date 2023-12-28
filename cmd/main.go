@@ -5,27 +5,25 @@ import (
 	"github.com/sirupsen/logrus"
 	"middleware/example/internal/controllers/Songs"
 	"middleware/example/internal/helpers"
-	_ "middleware/example/internal/models"
 	"net/http"
 )
 
 func main() {
 	r := chi.NewRouter()
-
 	r.Route("/songs", func(r chi.Router) {
 		r.Get("/", Songs.GetAllSongs)
 		r.Post("/", Songs.CreateSong)
 		r.Route("/{id}", func(r chi.Router) {
 			r.Use(Songs.Ctx)
 			r.Get("/", Songs.GetSong)
-			r.Delete("/", Songs.DeletSong)
-			r.Put("/", Songs.UpgradeSong)
+			r.Delete("/", Songs.DeleteSong)
+			r.Put("/", Songs.UpdateSong)
 		})
 	})
 
-	logrus.Info("[INFO] Web server started. Now listening on *:8089")
-	logrus.Fatalln(http.ListenAndServe(":8089", r))
-
+	port := ":8079"
+	logrus.Info("[INFO] Web server started. Now listening on %s", port)
+	logrus.Fatalln(http.ListenAndServe(port, r))
 }
 
 func init() {
@@ -34,13 +32,12 @@ func init() {
 		logrus.Fatalf("error while opening database : %s", err.Error())
 	}
 	schemes := []string{
-		`CREATE TABLE IF NOT EXISTS Songs (
+		`CREATE TABLE IF NOT EXISTS SONGS (
 			id VARCHAR(255) PRIMARY KEY NOT NULL UNIQUE,
-			content VARCHAR(255) NOT NULL,
     		title VARCHAR(255) NOT NULL,
         	file_name VARCHAR(255) NOT NULL,
     		artist VARCHAR(255) NOT NULL,
-			Published_date TIMESTAMP NOT NULL
+			published_date TIMESTAMP NOT NULL
 		);`,
 	}
 	for _, scheme := range schemes {

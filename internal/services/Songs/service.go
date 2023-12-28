@@ -11,10 +11,7 @@ import (
 )
 
 func GetAllSongs() ([]models.Song, error) {
-	var err error
-	// calling repository
-	songs, err := repository.RequestGetAllSongs()
-	// managing errors
+	songs, err := repository.GetAllSongs()
 	if err != nil {
 		logrus.Errorf("error retrieving Songs : %s", err.Error())
 		return nil, &models.CustomError{
@@ -27,15 +24,15 @@ func GetAllSongs() ([]models.Song, error) {
 }
 
 func GetSongById(id uuid.UUID) (*models.Song, error) {
-	song, err := repository.RequestGetSong(id)
+	song, err := repository.GetSongById(id)
 	if err != nil {
 		if errors.As(err, &sql.ErrNoRows) {
 			return nil, &models.CustomError{
-				Message: "song not found",
+				Message: "Song not found",
 				Code:    http.StatusNotFound,
 			}
 		}
-		logrus.Errorf("error retrieving Songs : %s", err.Error())
+		logrus.Errorf("error retrieving song : %s", err.Error())
 		return nil, &models.CustomError{
 			Message: "Something went wrong",
 			Code:    500,
@@ -45,30 +42,25 @@ func GetSongById(id uuid.UUID) (*models.Song, error) {
 	return song, err
 }
 
-func CreateSong(song models.Song) (*models.Song, error) {
-	newSong, err := repository.RequestCreateSong(song)
+func CreateSong(song models.SongRequest) (*models.Song, error) {
+	newSong, err := repository.CreateSong(song)
 	if err != nil {
-		if errors.As(err, &sql.ErrNoRows) {
-			return nil, &models.CustomError{
-				Message: "song not found",
-				Code:    http.StatusNotFound,
-			}
-		}
 		logrus.Errorf("error retrieving Songs : %s", err.Error())
 		return nil, &models.CustomError{
 			Message: "Something went wrong",
 			Code:    500,
 		}
 	}
+
 	return newSong, err
 }
 
-func UpgradeSong(song models.Song, id uuid.UUID) (*models.Song, error) {
-	newsong, err := repository.RequestUpgradeSong(song, id)
+func UpdateSong(song models.SongRequest, id uuid.UUID) (*models.Song, error) {
+	newSong, err := repository.UpdateSong(song, id)
 	if err != nil {
 		if errors.As(err, &sql.ErrNoRows) {
 			return nil, &models.CustomError{
-				Message: "song not found",
+				Message: "Song not found",
 				Code:    http.StatusNotFound,
 			}
 		}
@@ -78,23 +70,19 @@ func UpgradeSong(song models.Song, id uuid.UUID) (*models.Song, error) {
 			Code:    500,
 		}
 	}
-	return newsong, err
+
+	return newSong, err
 }
 
 func DeleteSong(id uuid.UUID) error {
-	err := repository.RequestDeleteSong(id)
+	err := repository.DeleteSong(id)
 	if err != nil {
-		if errors.As(err, &sql.ErrNoRows) {
-			return &models.CustomError{
-				Message: "song not found",
-				Code:    http.StatusNotFound,
-			}
-		}
 		logrus.Errorf("error retrieving Songs : %s", err.Error())
 		return &models.CustomError{
 			Message: "Something went wrong",
 			Code:    500,
 		}
 	}
+
 	return err
 }

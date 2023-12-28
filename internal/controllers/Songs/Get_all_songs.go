@@ -4,28 +4,24 @@ import (
 	"encoding/json"
 	"github.com/sirupsen/logrus"
 	"middleware/example/internal/models"
-	"middleware/example/internal/services/Songs"
+	service "middleware/example/internal/services/Songs"
 	"net/http"
 )
 
 // GetAllSongs
-// @Tags         Songs
-// @Summary      Get Songs.
-// @Description  Get Songs.
-// @Success      200            {array}  models.Song
-// @Failure      500             "Something went wrong"
-// @Router       /Songs [get]
+// @Tags         songs
+// @Summary      Get songs.
+// @Description  Get all songs.
+// @Success      200       {array}    models.Song              "Array of Song object"
+// @Failure      500       {object}   models.CustomError       "Something went wrong"
+// @Router       /songs/      [get]
 func GetAllSongs(w http.ResponseWriter, _ *http.Request) {
-	// calling service
-	Song, err := Songs.GetAllSongs()
+	songs, err := service.GetAllSongs()
 	if err != nil {
-		// logging error
 		logrus.Errorf("error : %s", err.Error())
 		customError, isCustom := err.(*models.CustomError)
 		if isCustom {
-			// writing http code in header
 			w.WriteHeader(customError.Code)
-			// writing error message in body
 			body, _ := json.Marshal(customError)
 			_, _ = w.Write(body)
 		} else {
@@ -35,7 +31,7 @@ func GetAllSongs(w http.ResponseWriter, _ *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusOK)
-	body, _ := json.Marshal(Song)
+	body, _ := json.Marshal(songs)
 	_, _ = w.Write(body)
 	return
 }

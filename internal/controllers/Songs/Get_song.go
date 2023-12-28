@@ -5,23 +5,25 @@ import (
 	"github.com/gofrs/uuid"
 	"github.com/sirupsen/logrus"
 	"middleware/example/internal/models"
-	"middleware/example/internal/repositories/Songs"
+	service "middleware/example/internal/services/Songs"
 	"net/http"
 )
 
 // GetSong
-// @Tags         Songs
-// @Summary      Get a collection.
-// @Description  Get a collection.
-// @Param        id           	path      string  true  "Song UUID formatted ID"
-// @Success      200            {object}  models.Song
-// @Failure      422            "Cannot parse id"
-// @Failure      500            "Something went wrong"
-// @Router       /Songs/{id} [get]
+// @Tags         songs
+// @Summary      Get a song.
+// @Description  Get the song with the specified ID.
+// @Param        id        path       string       true        "Song UUID formatted ID"
+// @Success      200       {object}   models.Song              "Song object"
+// @Failure      404       {object}   models.CustomError       "Song not found"
+// @Failure      422       {object}   models.CustomError       "Cannot parse id"
+// @Failure      500       {object}   models.CustomError       "Something went wrong"
+// @Router       /songs/{id}      [get]
 func GetSong(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	Song_Id, _ := ctx.Value("Song_Id").(uuid.UUID)
-	song, err := Songs.RequestGetSong(Song_Id)
+	songId, _ := ctx.Value("songId").(uuid.UUID)
+
+	song, err := service.GetSongById(songId)
 	if err != nil {
 		logrus.Errorf("error : %s", err.Error())
 		customError, isCustom := err.(*models.CustomError)
