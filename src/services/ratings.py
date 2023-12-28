@@ -6,7 +6,7 @@ from src.schemas.rating import RatingSchema
 from src.models.user import User as UserModel
 
 
-ratings_url = "https://ratings-juliette.edu.forestier.re"  # URL de l'API ratings (golang) fournis.
+ratings_url = "http://localhost:8081"  # URL de l'API ratings (golang).
 
 
 def get_ratings_by_song_id(song_id):

@@ -3,8 +3,10 @@ from marshmallow import Schema, fields, validates_schema, ValidationError
 
 class SongSchema(Schema):
     id = fields.String(description="UUID")
-    title = fields.String(description='Title')
-    file_name = fields.String(description='File name')
+    title = fields.String(description="Music title", required=True)
+    artist = fields.String(description="Artist name", required=True)
+    file_name = fields.String(description="File name", required=True)
+    published_date = fields.DateTime(description="Published date")
 
     @staticmethod
     def is_empty(obj):
@@ -40,5 +42,5 @@ class SongWithRatingSchema(Schema):
     title = fields.String(description="Music title", required=True)
     artist = fields.String(description="Artist name", required=True)
     file_name = fields.String(description="File name", required=True)
-    published_date = fields.DateTime(description="Published date")
+    Published_date = fields.DateTime(description="Published date")
     ratings = fields.Nested(RatingSchema, many=True)
