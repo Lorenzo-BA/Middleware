@@ -2,6 +2,7 @@ import json
 
 from flask import Blueprint, request
 from flask_login import login_user, logout_user, login_required, current_user
+from marshmallow import ValidationError
 
 from src.models.http_exceptions import *
 from src.schemas.errors import *
@@ -496,12 +497,12 @@ def get_songs():
               schema:
                type: array
                items:
-                 $ref: "#/components/schemas/SongWithRating"
+                 $ref: "#/components/schemas/Song"
             application/yaml:
               schema:
                type: array
                items:
-                 $ref: "#/components/schemas/SongWithRating"
+                 $ref: "#/components/schemas/Song"
         '401':
           description: Unauthorized
           content:
@@ -542,9 +543,9 @@ def get_song(song_id):
           description: Ok
           content:
             application/json:
-              schema: SongWithRating
+              schema: Song
             application/yaml:
-              schema: SongWithRating
+              schema: Song
         '401':
           description: Unauthorized
           content:
@@ -753,14 +754,135 @@ def update_song(song_id):
 @auth.route('/songs/<song_id>/ratings', methods=["GET"])
 @login_required
 def get_ratings_by_song_id(song_id):
+    """
+    ---
+    get:
+      description: Getting ratings of a song
+      parameters:
+        - in: path
+          name: song_id
+          schema:
+            type: uuidv4
+          required: true
+          description: UUID of song id
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+               type: array
+               items:
+                 $ref: "#/components/schemas/Rating"
+            application/yaml:
+              schema:
+               type: array
+               items:
+                 $ref: "#/components/schemas/Rating"
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema: Unauthorized
+            application/yaml:
+              schema: Unauthorized
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema: NotFound
+            application/yaml:
+              schema: NotFound
+        '422':
+          description: Unprocessable entity
+          content:
+            application/json:
+              schema: UnprocessableEntity
+            application/yaml:
+              schema: UnprocessableEntity
+        '500':
+          description: Something went wrong
+          content:
+            application/json:
+              schema: SomethingWentWrong
+            application/yaml:
+              schema: SomethingWentWrong
+      tags:
+          - auth
+          - songs
+          - ratings
+    """
+    if not songs_service.song_exists(song_id):
+        error = NotFoundSchema().loads(json.dumps({"message": "Not Found"}))
+        return error, error.get("code")
     return ratings_service.get_ratings_by_song_id(song_id)
 
 
 @auth.route('/songs/<song_id>/ratings', methods=["POST"])
 @login_required
 def add_ratings_with_song_id(song_id):
+    """
+    ---
+    post:
+      description: Adding a rating
+      parameters:
+        - in: path
+          name: song_id
+          schema:
+            type: uuidv4
+          required: true
+          description: UUID of song id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: RatingAdding
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema: Rating
+            application/yaml:
+              schema: Rating
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema: Unauthorized
+            application/yaml:
+              schema: Unauthorized
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema: NotFound
+            application/yaml:
+              schema: NotFound
+        '422':
+          description: Unprocessable entity
+          content:
+            application/json:
+              schema: UnprocessableEntity
+            application/yaml:
+              schema: UnprocessableEntity
+        '500':
+          description: Something went wrong
+          content:
+            application/json:
+              schema: SomethingWentWrong
+            application/yaml:
+              schema: SomethingWentWrong
+      tags:
+          - auth
+          - songs
+          - ratings
+    """
+    if not songs_service.song_exists(song_id):
+        error = NotFoundSchema().loads(json.dumps({"message": "Not Found"}))
+        return error, error.get("code")
     try:
-        rating = RatingSchema().loads(json_data=request.data.decode('utf-8'))
+        rating = RatingAddingSchema().loads(json_data=request.data.decode('utf-8'))
     except ValidationError as e:
         error = UnprocessableEntitySchema().loads(json.dumps({"message": e.messages.__str__()}))
         return error, error.get("code")
@@ -770,21 +892,221 @@ def add_ratings_with_song_id(song_id):
 @auth.route('/songs/<song_id>/ratings/<rating_id>', methods=["DELETE"])
 @login_required
 def delete_ratings_by_song_id_and_ratings_id(song_id, rating_id):
-    return ratings_service.delete_ratings_by_song_id_and_ratings_id(song_id, rating_id)
+    """
+    ---
+    delete:
+      description: Deleting one's rating
+      parameters:
+        - in: path
+          name: song_id
+          schema:
+            type: uuidv4
+          required: true
+          description: UUID of song id
+        - in: path
+          name: rating_id
+          schema:
+            type: uuidv4
+          required: true
+          description: UUID of rating id
+      responses:
+        '204':
+          description: No content
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema: Unauthorized
+            application/yaml:
+              schema: Unauthorized
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema: Forbidden
+            application/yaml:
+              schema: Forbidden
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema: NotFound
+            application/yaml:
+              schema: NotFound
+        '422':
+          description: Unprocessable entity
+          content:
+            application/json:
+              schema: UnprocessableEntity
+            application/yaml:
+              schema: UnprocessableEntity
+        '500':
+          description: Something went wrong
+          content:
+            application/json:
+              schema: SomethingWentWrong
+            application/yaml:
+              schema: SomethingWentWrong
+      tags:
+          - auth
+          - songs
+          - ratings
+    """
+    if not songs_service.song_exists(song_id):
+        error = NotFoundSchema().loads(json.dumps({"message": "Not Found"}))
+        return error, error.get("code")
+    try:
+        return ratings_service.delete_ratings_by_song_id_and_ratings_id(song_id, rating_id, current_user.id)
+    except Forbidden:
+        error = ForbiddenSchema().loads(json.dumps({"message": "Forbidden: Resource is locked."}))
+        return error, error.get("code")
 
 
 @auth.route('/songs/<song_id>/ratings/<rating_id>', methods=["GET"])
 @login_required
 def get_ratings_by_song_id_and_ratings_id(song_id, rating_id):
+    """
+    ---
+    get:
+      description: Getting a specific rating
+      parameters:
+        - in: path
+          name: song_id
+          schema:
+            type: uuidv4
+          required: true
+          description: UUID of song id
+        - in: path
+          name: rating_id
+          schema:
+            type: uuidv4
+          required: true
+          description: UUID of rating id
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: Rating
+            application/yaml:
+              schema: Rating
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema: Unauthorized
+            application/yaml:
+              schema: Unauthorized
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema: NotFound
+            application/yaml:
+              schema: NotFound
+        '422':
+          description: Unprocessable entity
+          content:
+            application/json:
+              schema: UnprocessableEntity
+            application/yaml:
+              schema: UnprocessableEntity
+        '500':
+          description: Something went wrong
+          content:
+            application/json:
+              schema: SomethingWentWrong
+            application/yaml:
+              schema: SomethingWentWrong
+      tags:
+          - auth
+          - songs
+          - ratings
+    """
+    if not songs_service.song_exists(song_id):
+        error = NotFoundSchema().loads(json.dumps({"message": "Not Found"}))
+        return error, error.get("code")
     return ratings_service.get_ratings_by_song_id_and_ratings_id(song_id, rating_id)
 
 
 @auth.route('/songs/<song_id>/ratings/<rating_id>', methods=["PUT"])
 @login_required
 def update_ratings_by_song_id_and_ratings_id(song_id, rating_id):
+    """
+    ---
+    put:
+      description: Updating one's rating
+      parameters:
+        - in: path
+          name: song_id
+          schema:
+            type: uuidv4
+          required: true
+          description: UUID of song id
+        - in: path
+          name: rating_id
+          schema:
+            type: uuidv4
+          required: true
+          description: UUID of rating id
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: Rating
+            application/yaml:
+              schema: Rating
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema: Unauthorized
+            application/yaml:
+              schema: Unauthorized
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema: Forbidden
+            application/yaml:
+              schema: Forbidden
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema: NotFound
+            application/yaml:
+              schema: NotFound
+        '422':
+          description: Unprocessable entity
+          content:
+            application/json:
+              schema: UnprocessableEntity
+            application/yaml:
+              schema: UnprocessableEntity
+        '500':
+          description: Something went wrong
+          content:
+            application/json:
+              schema: SomethingWentWrong
+            application/yaml:
+              schema: SomethingWentWrong
+      tags:
+          - auth
+          - songs
+          - ratings
+    """
+    if not songs_service.song_exists(song_id):
+        error = NotFoundSchema().loads(json.dumps({"message": "Not Found"}))
+        return error, error.get("code")
     try:
-        rating = RatingSchema().loads(json_data=request.data.decode('utf-8'))
+        rating = RatingAddingSchema().loads(json_data=request.data.decode('utf-8'))
     except ValidationError as e:
         error = UnprocessableEntitySchema().loads(json.dumps({"message": e.messages.__str__()}))
         return error, error.get("code")
-    return ratings_service.update_ratings_by_song_id_and_ratings_id(song_id, rating_id, rating)
+    try:
+        return ratings_service.update_ratings_by_song_id_and_ratings_id(song_id, rating_id, rating, current_user.id)
+    except Forbidden:
+        error = ForbiddenSchema().loads(json.dumps({"message": "Forbidden: Resource is locked."}))
+        return error, error.get("code")

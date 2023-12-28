@@ -1,32 +1,31 @@
-import json
 import requests
 from marshmallow import EXCLUDE
 
 from src.schemas.song import *
+from src.services.ratings import get_ratings_by_song_id
 
 
 songs_url = "http://localhost:8079/songs/"  # URL de l'API songs (golang).
-ratings_url = "http://localhost:8081"  # URL de l'API ratings (golang).
 
 
 def get_songs():
     songs_response = requests.get(songs_url)
+    if songs_response.status_code != 200:
+        return songs_response.json(), songs_response.status_code
+
     songs_data = songs_response.json()
-
     songs_with_ratings = []
-
     for song_data in songs_data:
         song_id = song_data["id"]
+        ratings_data, ratings_status = get_ratings_by_song_id(song_id)
+        if ratings_status != 200:
+            return ratings_data, ratings_status
 
-        ratings_response = requests.get(ratings_url + "/songs/" + song_id + "/ratings")
-        ratings_data = ratings_response.json()
-
-        song_schema = SongWithRatingSchema().load(song_data, unknown=EXCLUDE)
-        ratings_schema = RatingSchema(many=True).load(ratings_data, unknown=EXCLUDE)
-
-        song_schema["ratings"] = ratings_schema
-
-        songs_with_ratings.append(song_schema)
+        song_with_ratings = {
+            **SongSchema().load(song_data, unknown=EXCLUDE),
+            "ratings": ratings_data,
+        }
+        songs_with_ratings.append(song_with_ratings)
 
     return songs_with_ratings, songs_response.status_code
 
@@ -35,26 +34,26 @@ def get_song(song_id):
     song_response = requests.get(songs_url + song_id)
     if song_response.status_code != 200:
         return song_response.json(), song_response.status_code
+
     song_data = song_response.json()
     song_id = song_data["id"]
-    ratings_response = requests.get(ratings_url + "/songs/" + song_id + "/ratings")
-    ratings_data = ratings_response.json()
-    song_schema = SongWithRatingSchema().load(song_data, unknown=EXCLUDE)
-    ratings_schema = RatingSchema(many=True).load(ratings_data, unknown=EXCLUDE)
-    song_schema["ratings"] = ratings_schema
-    return song_schema, song_response.status_code
+    ratings_data, ratings_status = get_ratings_by_song_id(song_id)
+    if ratings_status != 200:
+        return ratings_data, ratings_status
+
+    return {
+        **SongSchema().load(song_data, unknown=EXCLUDE),
+        "ratings": ratings_data,
+    }, song_response.status_code
 
 
 def create_song(song):
-    song_schema = SongWithRatingSchema().loads(json.dumps(song), unknown=EXCLUDE)
-    response = requests.post(songs_url, json=song_schema)
-
-    if response.status_code == 201:
-        created_song_schema = SongWithRatingSchema().load(response.json(), unknown=EXCLUDE)
-        created_song_schema["ratings"] = []
-        return created_song_schema, response.status_code
-    else:
+    response = requests.post(songs_url, json=song)
+    if response.status_code != 201:
         return response.json(), response.status_code
+    created_song = response.json()
+    created_song["ratings"] = []
+    return created_song, response.status_code
 
 
 def delete_song(song_id):
@@ -65,12 +64,16 @@ def delete_song(song_id):
 
 
 def update_song(song_id, song):
-    song_schema = SongWithRatingSchema().loads(json.dumps(song), unknown=EXCLUDE)
-    response = requests.put(songs_url + song_id, json=song_schema)
-
-    if response.status_code == 200:
-        created_song_schema = SongWithRatingSchema().load(response.json(), unknown=EXCLUDE)
-        created_song_schema["ratings"] = []
-        return created_song_schema, response.status_code
-    else:
+    response = requests.put(songs_url + song_id, json=song)
+    if response.status_code != 200:
         return response.json(), response.status_code
+
+    song_response, song_status = get_song(song_id)
+    if song_status != 200:
+        return song_response, song_status
+    return song_response, response.status_code
+
+
+def song_exists(song_id):
+    response = requests.get(songs_url + song_id)
+    return response.status_code == 200

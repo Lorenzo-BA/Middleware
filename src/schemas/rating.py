@@ -1,4 +1,4 @@
-from marshmallow import Schema, fields, validates_schema, ValidationError
+from marshmallow import Schema, fields, ValidationError, validates_schema
 
 
 class RatingSchema(Schema):
@@ -9,18 +9,15 @@ class RatingSchema(Schema):
     song_id = fields.String(description='Song id')
     user_id = fields.String(description='User id')
 
-    @staticmethod
-    def is_empty(obj):
-        return not obj.get("id") or obj.get("id") == ""
 
+class RatingAddingSchema(Schema):
+    comment = fields.String(description="Comment", required=True)
+    rating = fields.Int(description="Rating", required=True)
+    user_id = fields.String(description='User id')
 
-class RatingAddSchema(RatingSchema):
     @validates_schema
-    def validates_schemas(self, data, **kwargs):
-        if not (("comment" in data and data["comment"] != "") or
-                ("id" in data and data["id"] != "") or
-                ("rating" in data and data["rating"] != "") or
-                ("rating_date" in data and data["rating_date"] != "") or
-                ("song_id" in data and data["song_id"] != "") or
-                ("user_id" in data and data["user_id"] != "")):
-            raise ValidationError("at least one argument must be specified")
+    def validate_rating_range(self, data, **kwargs):
+        if "rating" in data:
+            rating_value = data["rating"]
+            if not 1 <= rating_value <= 5:
+                raise ValidationError("Rating must be in the range of 0 to 5.")

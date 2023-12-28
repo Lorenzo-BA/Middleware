@@ -7,6 +7,7 @@ from apispec_webframeworks.flask import FlaskPlugin
 from src.schemas.user import *
 from src.schemas.song import *
 from src.schemas.user_auth import *
+from src.schemas.rating import *
 from src.schemas.errors import *
 
 
@@ -21,11 +22,12 @@ spec = APISpec(
 
 # register used schemas with spec
 spec.components.schema("User", schema=UserSchema)
-spec.components.schema("SongWithRating", schema=SongWithRatingSchema)
-spec.components.schema("SongAdding", schema=SongAddingSchema)
 spec.components.schema("UserLogin", schema=UserLoginSchema)
 spec.components.schema("UserRegister", schema=UserRegisterSchema)
 spec.components.schema("UserUpdate", schema=UserUpdateSchema)
+spec.components.schema("Song", schema=SongSchema)
+spec.components.schema("SongAdding", schema=SongAddingSchema)
+spec.components.schema("RatingAdding", schema=RatingAddingSchema)
 spec.components.schema("Unauthorized", schema=UnauthorizedSchema)
 spec.components.schema("Forbidden", schema=ForbiddenSchema)
 spec.components.schema("NotFound", schema=NotFoundSchema)
@@ -43,6 +45,14 @@ tags = [
     {
         "name": "auth",
         "description": "Managing authentication"
+    },
+    {
+        "name": "songs",
+        "description": "Managing songs"
+    },
+    {
+        "name": "ratings",
+        "description": "Managing ratings"
     }
 ]
 
