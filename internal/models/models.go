@@ -8,9 +8,9 @@ import (
 type Song struct {
 	Id             *uuid.UUID `json:"id"`
 	Content        string     `json:"content"`
-	Music_title    string     `json:"title"`
+	Title          string     `json:"title"`
 	File_name      string     `json:"file_name"`
-	Artist_name    string     `json:"artist"`
+	Artist         string     `json:"artist"`
 	Published_date time.Time  `json:"Published_date"`
-	Code           int
+	Code           int        `json:"Code"`
 }
