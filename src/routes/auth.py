@@ -313,7 +313,6 @@ def get_users():
             application/yaml:
               schema: SomethingWentWrong
       tags:
-          - auth
           - users
     """
     try:
@@ -375,7 +374,6 @@ def get_user(user_id):
             application/yaml:
               schema: SomethingWentWrong
       tags:
-          - auth
           - users
     """
     try:
@@ -425,7 +423,6 @@ def delete_user(user_id):
             application/yaml:
               schema: SomethingWentWrong
       tags:
-        - auth
         - users
     """
     try:
@@ -502,7 +499,6 @@ def update_user(user_id):
             application/yaml:
               schema: SomethingWentWrong
       tags:
-        - auth
         - users
     """
     try:
@@ -887,14 +883,19 @@ def get_ratings_by_song_id(song_id):
             application/yaml:
               schema: SomethingWentWrong
       tags:
-          - auth
           - songs
           - ratings
     """
     if not songs_service.song_exists(song_id):
         error = NotFoundSchema().loads(json.dumps({"message": "Not Found"}))
-        return error, error.get("code")
-    return ratings_service.get_ratings_by_song_id(song_id)
+        return negotiate_content(error, error.get("code"))
+
+    try:
+        response_data, status_code = ratings_service.get_ratings_by_song_id(song_id)
+        return negotiate_content(response_data, status_code)
+    except Exception as e:
+        error = SomethingWentWrongSchema().loads(json.dumps({"message": str(e)}))
+        return negotiate_content(error, error.get("code"))
 
 
 @auth.route('/songs/<song_id>/ratings', methods=["POST"])
@@ -953,19 +954,28 @@ def add_ratings_with_song_id(song_id):
             application/yaml:
               schema: SomethingWentWrong
       tags:
-          - auth
           - songs
           - ratings
     """
     if not songs_service.song_exists(song_id):
         error = NotFoundSchema().loads(json.dumps({"message": "Not Found"}))
-        return error, error.get("code")
+        return negotiate_content(error, error.get("code"))
+
     try:
         rating = RatingAddingSchema().loads(json_data=request.data.decode('utf-8'))
+    except JSONDecodeError:
+        error = UnprocessableEntitySchema().loads(json.dumps({"message": "Invalid JSON format"}))
+        return negotiate_content(error, error.get("code"))
     except ValidationError as e:
         error = UnprocessableEntitySchema().loads(json.dumps({"message": e.messages.__str__()}))
-        return error, error.get("code")
-    return ratings_service.add_ratings_with_song_id(song_id, rating, current_user.id)
+        return negotiate_content(error, error.get("code"))
+
+    try:
+        response_data, status_code = ratings_service.add_ratings_with_song_id(song_id, rating)
+        return negotiate_content(response_data, status_code)
+    except Exception as e:
+        error = SomethingWentWrongSchema().loads(json.dumps({"message": str(e)}))
+        return negotiate_content(error, error.get("code"))
 
 
 @auth.route('/songs/<song_id>/ratings/<rating_id>', methods=["DELETE"])
@@ -999,7 +1009,7 @@ def delete_ratings_by_song_id_and_ratings_id(song_id, rating_id):
             application/yaml:
               schema: Unauthorized
         '403':
-          description: Forbidden
+          description: Forbidden, rating not theirs
           content:
             application/json:
               schema: Forbidden
@@ -1027,18 +1037,22 @@ def delete_ratings_by_song_id_and_ratings_id(song_id, rating_id):
             application/yaml:
               schema: SomethingWentWrong
       tags:
-          - auth
           - songs
           - ratings
     """
     if not songs_service.song_exists(song_id):
         error = NotFoundSchema().loads(json.dumps({"message": "Not Found"}))
-        return error, error.get("code")
+        return negotiate_content(error, error.get("code"))
+
     try:
-        return ratings_service.delete_ratings_by_song_id_and_ratings_id(song_id, rating_id, current_user.id)
+        response_data, status_code = ratings_service.delete_ratings_by_song_id_and_ratings_id(song_id, rating_id)
+        return negotiate_content(response_data, status_code)
     except Forbidden:
         error = ForbiddenSchema().loads(json.dumps({"message": "Forbidden: Resource is locked."}))
-        return error, error.get("code")
+        return negotiate_content(error, error.get("code"))
+    except Exception as e:
+        error = SomethingWentWrongSchema().loads(json.dumps({"message": str(e)}))
+        return negotiate_content(error, error.get("code"))
 
 
 @auth.route('/songs/<song_id>/ratings/<rating_id>', methods=["GET"])
@@ -1098,14 +1112,19 @@ def get_ratings_by_song_id_and_ratings_id(song_id, rating_id):
             application/yaml:
               schema: SomethingWentWrong
       tags:
-          - auth
           - songs
           - ratings
     """
     if not songs_service.song_exists(song_id):
         error = NotFoundSchema().loads(json.dumps({"message": "Not Found"}))
-        return error, error.get("code")
-    return ratings_service.get_ratings_by_song_id_and_ratings_id(song_id, rating_id)
+        return negotiate_content(error, error.get("code"))
+
+    try:
+        response_data, status_code = ratings_service.get_ratings_by_song_id_and_ratings_id(song_id, rating_id)
+        return negotiate_content(response_data, status_code)
+    except Exception as e:
+        error = SomethingWentWrongSchema().loads(json.dumps({"message": str(e)}))
+        return negotiate_content(error, error.get("code"))
 
 
 @auth.route('/songs/<song_id>/ratings/<rating_id>', methods=["PUT"])
@@ -1128,6 +1147,11 @@ def update_ratings_by_song_id_and_ratings_id(song_id, rating_id):
             type: uuidv4
           required: true
           description: UUID of rating id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: RatingAdding
       responses:
         '200':
           description: OK
@@ -1144,7 +1168,7 @@ def update_ratings_by_song_id_and_ratings_id(song_id, rating_id):
             application/yaml:
               schema: Unauthorized
         '403':
-          description: Forbidden
+          description: Forbidden, rating not theirs
           content:
             application/json:
               schema: Forbidden
@@ -1172,20 +1196,27 @@ def update_ratings_by_song_id_and_ratings_id(song_id, rating_id):
             application/yaml:
               schema: SomethingWentWrong
       tags:
-          - auth
           - songs
           - ratings
     """
     if not songs_service.song_exists(song_id):
         error = NotFoundSchema().loads(json.dumps({"message": "Not Found"}))
-        return error, error.get("code")
+        return negotiate_content(error, error.get("code"))
     try:
         rating = RatingAddingSchema().loads(json_data=request.data.decode('utf-8'))
+    except JSONDecodeError:
+        error = UnprocessableEntitySchema().loads(json.dumps({"message": "Invalid JSON format"}))
+        return negotiate_content(error, error.get("code"))
     except ValidationError as e:
         error = UnprocessableEntitySchema().loads(json.dumps({"message": e.messages.__str__()}))
-        return error, error.get("code")
+        return negotiate_content(error, error.get("code"))
+
     try:
-        return ratings_service.update_ratings_by_song_id_and_ratings_id(song_id, rating_id, rating, current_user.id)
+        response_data, status_code = ratings_service.update_ratings_by_song_id_and_ratings_id(song_id, rating_id, rating)
+        return negotiate_content(response_data, status_code)
     except Forbidden:
         error = ForbiddenSchema().loads(json.dumps({"message": "Forbidden: Resource is locked."}))
-        return error, error.get("code")
+        return negotiate_content(error, error.get("code"))
+    except Exception as e:
+        error = SomethingWentWrongSchema().loads(json.dumps({"message": str(e)}))
+        return negotiate_content(error, error.get("code"))

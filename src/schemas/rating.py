@@ -13,7 +13,6 @@ class RatingSchema(Schema):
 class RatingAddingSchema(Schema):
     comment = fields.String(description="Comment", required=True)
     rating = fields.Int(description="Rating", required=True)
-    user_id = fields.String(description='User id')
 
     @validates_schema
     def validate_rating_range(self, data, **kwargs):
