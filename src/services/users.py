@@ -10,16 +10,16 @@ from src.models.http_exceptions import *
 import src.repositories.users as users_repository
 
 
-users_url = "http://localhost:8080/users/"  # URL de l'API users (golang)
+USERS_URL = "http://localhost:8080/users/"  # URL de l'API users (golang)
 
 
 def get_users():
-    response = requests.request(method="GET", url=users_url)
+    response = requests.get(USERS_URL)
     return response.json(), response.status_code
 
 
 def get_user(user_id):
-    response = requests.request(method="GET", url=users_url + user_id)
+    response = requests.get(USERS_URL + user_id)
     return response.json(), response.status_code
 
 
@@ -30,7 +30,7 @@ def create_user(user_register):
     user_schema = UserSchema().loads(json.dumps(user_register), unknown=EXCLUDE)
 
     # on crée l'utilisateur côté API users
-    response = requests.request(method="POST", url=users_url, json=user_schema)
+    response = requests.request(method="POST", url=USERS_URL, json=user_schema)
     if response.status_code != 201:
         return response.json(), response.status_code
 
@@ -46,34 +46,34 @@ def create_user(user_register):
 
 
 def update_user(user_id, user):
-    # on vérifie que l'utilisateur se modifie lui-même
     if user_id != current_user.id:
         raise Forbidden
 
-    # s'il y a quelque chose à changer côté API (username, name)
-    user_schema = UserSchema().loads(json.dumps(user), unknown=EXCLUDE)
-    response = None
-    if not UserSchema.is_empty(user_schema):
-        # on lance la requête de modification
-        response = requests.request(method="PUT", url=users_url + user_id, json=user_schema)
-        if response.status_code != 200:
-            return response.json(), response.status_code
-
-    # s'il y a quelque chose à changer côté BDD
     user_model = UserModel.from_dict_with_clear_password(user)
-    if not user_model.is_empty():
-        user_model.id = user_id
-        found_user = users_repository.get_user_from_id(user_id)
-        if not user_model.username:
-            user_model.username = found_user.username
-        if not user_model.encrypted_password:
-            user_model.encrypted_password = found_user.encrypted_password
-        try:
-            users_repository.update_user(user_model)
-        except exc.IntegrityError as e:
-            if "NOT NULL" in e.orig.args[0]:
-                raise UnprocessableEntity
-            raise Conflict
+    user_model.id = user_id
+    found_user = users_repository.get_user_from_id(user_id)
+    if not user_model.username:
+        user_model.username = found_user.username
+        user["username"] = found_user.username
+    if not user_model.encrypted_password:
+        user_model.encrypted_password = found_user.encrypted_password
+
+    if not ("name" in user and user["name"] is not None):
+        user_data, status_code = get_user(user_id)
+        if status_code != 200:
+            return user_data, status_code
+        user["name"] = user_data["name"]
+
+    response = requests.put(USERS_URL + user_id, json=user)
+    if response.status_code != 200:
+        return response.json(), response.status_code
+
+    try:
+        users_repository.update_user(user_model)
+    except exc.IntegrityError as e:
+        if "NOT NULL" in e.orig.args[0]:
+            raise UnprocessableEntity
+        raise Conflict
 
     return response.json(), response.status_code
 
@@ -82,7 +82,7 @@ def delete_user(user_id):
     if user_id != current_user.id:
         raise Forbidden
 
-    response = requests.request(method="DELETE", url=users_url + user_id)
+    response = requests.delete(USERS_URL + user_id)
     if response.status_code != 204:
         return response.json(), response.status_code
 

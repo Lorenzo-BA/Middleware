@@ -2,7 +2,7 @@ import json
 
 from flask import Blueprint, request
 from flask_login import login_user, logout_user, login_required, current_user
-from marshmallow import ValidationError
+from json.decoder import JSONDecodeError
 
 from src.models.http_exceptions import *
 from src.schemas.errors import *
@@ -14,13 +14,13 @@ import src.services.users as users_service
 import src.services.auth as auth_service
 import src.services.songs as songs_service
 import src.services.ratings as ratings_service
-
+from src.utils.content_negotiation import negotiate_content
 
 auth = Blueprint(name="login", import_name=__name__)
 
 
 ####################################################################################
-#____________________________________AUTH__________________________________________#
+# ____________________________________AUTH________________________________________ #
 ####################################################################################
 
 
@@ -37,7 +37,20 @@ def login():
                 schema: UserLogin
       responses:
         '200':
-          description: Ok
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+            application/yaml:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
         '401':
           description: Unauthorized
           content:
@@ -72,28 +85,28 @@ def login():
     """
     if current_user.is_authenticated:
         error = ForbiddenSchema().loads(json.dumps({"message": "Already logged in"}))
-        return error, error.get("code")
+        return negotiate_content(error, error.get("code"))
 
-    # parser le body
     try:
-        # it is possible to use marshmallow Schemas validation (used also for doc) or custom classes
         user_login = UserLoginSchema().loads(json_data=request.data.decode('utf-8'))
+    except JSONDecodeError:
+        error = UnprocessableEntitySchema().loads(json.dumps({"message": "Invalid JSON format"}))
+        return negotiate_content(error, error.get("code"))
     except ValidationError as e:
         error = UnprocessableEntitySchema().loads(json.dumps({"message": e.messages.__str__()}))
-        return error, error.get("code")
+        return negotiate_content(error, error.get("code"))
 
-    # logger l'utilisateur
     try:
         user = auth_service.login(user_login)
     except (NotFound, Unauthorized):
         error = UnauthorizedSchema().loads("{}")
-        return error, error.get("code")
-    except Exception:
-        error = SomethingWentWrongSchema().loads("{}")
-        return error, error.get("code")
+        return negotiate_content(error, error.get("code"))
+    except Exception as e:
+        error = SomethingWentWrongSchema().loads(json.dumps({"message": str(e)}))
+        return negotiate_content(error, error.get("code"))
 
     login_user(user, remember=True)
-    return "", 200
+    return negotiate_content({"message": "Authentication successful. Welcome, {0}!".format(user.username)}, 200)
 
 
 @auth.route('/logout', methods=['POST'])
@@ -105,7 +118,20 @@ def logout():
       description: Logout
       responses:
         '200':
-          description: Ok
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+            application/yaml:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
         '401':
           description: Unauthorized
           content:
@@ -118,7 +144,7 @@ def logout():
           - users
     """
     logout_user()
-    return "", 200
+    return negotiate_content({"message": "Logout successful. Goodbye !"}, 200)
 
 
 @auth.route('/register', methods=['POST'])
@@ -131,6 +157,8 @@ def register():
         required: true
         content:
             application/json:
+                schema: UserRegister
+            application/yaml:
                 schema: UserRegister
       responses:
         '201':
@@ -181,24 +209,26 @@ def register():
     """
     if current_user.is_authenticated:
         error = ForbiddenSchema().loads(json.dumps({"message": "Already logged in"}))
-        return error, error.get("code")
+        return negotiate_content(error, error.get("code"))
 
-    # parser le body
     try:
         user_register = UserRegisterSchema().loads(json_data=request.data.decode('utf-8'))
+    except JSONDecodeError:
+        error = UnprocessableEntitySchema().loads(json.dumps({"message": "Invalid JSON format"}))
+        return negotiate_content(error, error.get("code"))
     except ValidationError as e:
         error = UnprocessableEntitySchema().loads(json.dumps({"message": e.messages.__str__()}))
-        return error, error.get("code")
+        return negotiate_content(error, error.get("code"))
 
-    # enregistrer l'utilisateur
     try:
-        return auth_service.register(user_register)
+        response_data, status_code = auth_service.register(user_register)
+        return negotiate_content(response_data, status_code)
     except Conflict:
         error = ConflictSchema().loads(json.dumps({"message": "User already exists"}))
-        return error, error.get("code")
-    except SomethingWentWrong:
-        error = SomethingWentWrongSchema().loads("{}")
-        return error, error.get("code")
+        return negotiate_content(error, error.get("code"))
+    except Exception as e:
+        error = SomethingWentWrongSchema().loads(json.dumps({"message": str(e)}))
+        return negotiate_content(error, error.get("code"))
 
 
 @auth.route('/introspect', methods=["GET"])
@@ -234,11 +264,16 @@ def introspect():
           - auth
           - users
     """
-    return users_service.get_user(current_user.id)
+    try:
+        response_data, status_code = users_service.get_user(current_user.id)
+        return negotiate_content(response_data, status_code)
+    except Exception as e:
+        error = SomethingWentWrongSchema().loads(json.dumps({"message": str(e)}))
+        return negotiate_content(error, error.get("code"))
 
 
 ####################################################################################
-#____________________________________USERS_________________________________________#
+# ____________________________________USERS_______________________________________ #
 ####################################################################################
 
 
@@ -281,7 +316,12 @@ def get_users():
           - auth
           - users
     """
-    return users_service.get_users()
+    try:
+        response_data, status_code = users_service.get_users()
+        return negotiate_content(response_data, status_code)
+    except Exception as e:
+        error = SomethingWentWrongSchema().loads(json.dumps({"message": str(e)}))
+        return negotiate_content(error, error.get("code"))
 
 
 @auth.route('/users/<user_id>', methods=["GET"])
@@ -296,6 +336,8 @@ def get_user(user_id):
           name: user_id
           schema:
             type: uuidv4
+          required: true
+          description: UUID of user id
       responses:
         '200':
           description: Ok
@@ -336,7 +378,12 @@ def get_user(user_id):
           - auth
           - users
     """
-    return users_service.get_user(user_id)
+    try:
+        response_data, status_code = users_service.get_user(user_id)
+        return negotiate_content(response_data, status_code)
+    except Exception as e:
+        error = SomethingWentWrongSchema().loads(json.dumps({"message": str(e)}))
+        return negotiate_content(error, error.get("code"))
 
 
 @auth.route('/users/<user_id>', methods=["DELETE"])
@@ -381,13 +428,14 @@ def delete_user(user_id):
         - users
     """
     try:
-        return users_service.delete_user(user_id)
+        response_data, status_code = users_service.delete_user(user_id)
+        return negotiate_content(response_data, status_code)
     except Forbidden as e:
         error = ForbiddenSchema().loads(json.dumps({"message": "Forbidden: Resource is locked."}))
-        return error, error.get("code")
-    except Exception:
-        error = SomethingWentWrongSchema().loads("{}")
-        return error, error.get("code")
+        return negotiate_content(error, error.get("code"))
+    except Exception as e:
+        error = SomethingWentWrongSchema().loads(json.dumps({"message": str(e)}))
+        return negotiate_content(error, error.get("code"))
 
 
 @auth.route('/users/<user_id>', methods=["PUT"])
@@ -396,7 +444,7 @@ def update_user(user_id):
     """
     ---
     put:
-      description: Update oneself
+      description: Updating oneself
       parameters:
         - in: path
           name: user_id
@@ -430,13 +478,13 @@ def update_user(user_id):
               schema: Forbidden
             application/yaml:
               schema: Forbidden
-        '404':
-          description: Not Found
+        '409':
+          description: User already exists
           content:
             application/json:
-              schema: NotFound
+              schema: Conflict
             application/yaml:
-              schema: NotFound
+              schema: Conflict
         '422':
           description: Unprocessable Entity
           content:
@@ -457,28 +505,32 @@ def update_user(user_id):
     """
     try:
         user_modified = UserUpdateSchema().loads(json_data=request.data.decode('utf-8'))
+    except JSONDecodeError:
+        error = UnprocessableEntitySchema().loads(json.dumps({"message": "Invalid JSON format"}))
+        return negotiate_content(error, error.get("code"))
     except ValidationError as e:
         error = UnprocessableEntitySchema().loads(json.dumps({"message": e.messages.__str__()}))
-        return error, error.get("code")
+        return negotiate_content(error, error.get("code"))
 
     try:
-        return users_service.update_user(user_id, user_modified)
+        response_data, status_code = users_service.update_user(user_id, user_modified)
+        return negotiate_content(response_data, status_code)
     except Conflict:
         error = ConflictSchema().loads(json.dumps({"message": "User already exists"}))
-        return error, error.get("code")
+        return negotiate_content(error, error.get("code"))
     except UnprocessableEntity:
         error = UnprocessableEntitySchema().loads(json.dumps({"message": "One required field was empty"}))
-        return error, error.get("code")
+        return negotiate_content(error, error.get("code"))
     except Forbidden:
         error = ForbiddenSchema().loads(json.dumps({"message": "Forbidden: Resource is locked."}))
-        return error, error.get("code")
-    except Exception:
-        error = SomethingWentWrongSchema().loads("{}")
-        return error, error.get("code")
+        return negotiate_content(error, error.get("code"))
+    except Exception as e:
+        error = SomethingWentWrongSchema().loads(json.dumps({"message": str(e)}))
+        return negotiate_content(error, error.get("code"))
 
 
 ####################################################################################
-#____________________________________SONGS_________________________________________#
+# ____________________________________SONGS_______________________________________ #
 ####################################################################################
 
 
@@ -747,7 +799,7 @@ def update_song(song_id):
 
 
 ####################################################################################
-#____________________________________RATINGS_______________________________________#
+# ____________________________________RATINGS_____________________________________ #
 ####################################################################################
 
 

@@ -5,6 +5,7 @@ from flask_login import LoginManager
 from src.helpers import db, app
 from src.models.user import User
 from src.schemas.errors import UnauthorizedSchema
+from src.utils.content_negotiation import negotiate_content
 
 
 def config_app():
@@ -29,7 +30,7 @@ def config_app():
     # Vous pouvez commenter ce callback si vous ne voulez pas de body à vos réponses Unauthorized
     def unauthorized_response():
         error = UnauthorizedSchema().loads("{}")
-        return error, error.get("code")
+        return negotiate_content(error, error.get("code"))
     login_manager.unauthorized_callback = unauthorized_response
 
     @login_manager.user_loader
