@@ -398,6 +398,7 @@ def delete_user(user_id):
           name: user_id
           schema:
             type: uuidv4
+          required: true
           description: UUID of user id
       responses:
         '204':
@@ -450,6 +451,7 @@ def update_user(user_id):
           name: user_id
           schema:
             type: uuidv4
+          required: true
           description: UUID of user id
       requestBody:
         required: true
@@ -518,9 +520,6 @@ def update_user(user_id):
     except Conflict:
         error = ConflictSchema().loads(json.dumps({"message": "User already exists"}))
         return negotiate_content(error, error.get("code"))
-    except UnprocessableEntity:
-        error = UnprocessableEntitySchema().loads(json.dumps({"message": "One required field was empty"}))
-        return negotiate_content(error, error.get("code"))
     except Forbidden:
         error = ForbiddenSchema().loads(json.dumps({"message": "Forbidden: Resource is locked."}))
         return negotiate_content(error, error.get("code"))
@@ -570,10 +569,14 @@ def get_songs():
             application/yaml:
               schema: SomethingWentWrong
       tags:
-          - auth
           - songs
     """
-    return songs_service.get_songs()
+    try:
+        response_data, status_code = songs_service.get_songs()
+        return negotiate_content(response_data, status_code)
+    except Exception as e:
+        error = SomethingWentWrongSchema().loads(json.dumps({"message": str(e)}))
+        return negotiate_content(error, error.get("code"))
 
 
 @auth.route('/songs/<song_id>', methods=["GET"])
@@ -627,10 +630,14 @@ def get_song(song_id):
            application/yaml:
              schema: SomethingWentWrong
       tags:
-          - auth
           - songs
     """
-    return songs_service.get_song(song_id)
+    try:
+        response_data, status_code = songs_service.get_song(song_id)
+        return negotiate_content(response_data, status_code)
+    except Exception as e:
+        error = SomethingWentWrongSchema().loads(json.dumps({"message": str(e)}))
+        return negotiate_content(error, error.get("code"))
 
 
 @auth.route('/songs/<song_id>', methods=["DELETE"])
@@ -672,10 +679,14 @@ def delete_song(song_id):
             application/yaml:
               schema: SomethingWentWrong
       tags:
-          - auth
           - songs
     """
-    return songs_service.delete_song(song_id)
+    try:
+        response_data, status_code = songs_service.delete_song(song_id)
+        return negotiate_content(response_data, status_code)
+    except Exception as e:
+        error = SomethingWentWrongSchema().loads(json.dumps({"message": str(e)}))
+        return negotiate_content(error, error.get("code"))
 
 
 @auth.route('/songs/', methods=["POST"])
@@ -684,7 +695,7 @@ def create_song():
     """
     ---
     post:
-      description: Creating a song
+      description: Adding a song
       requestBody:
         required: true
         content:
@@ -720,15 +731,23 @@ def create_song():
             application/yaml:
               schema: NotFound
       tags:
-          - auth
           - songs
     """
     try:
         song = SongAddingSchema().loads(json_data=request.data.decode('utf-8'))
+    except JSONDecodeError:
+        error = UnprocessableEntitySchema().loads(json.dumps({"message": "Invalid JSON format"}))
+        return negotiate_content(error, error.get("code"))
     except ValidationError as e:
         error = UnprocessableEntitySchema().loads(json.dumps({"message": e.messages.__str__()}))
-        return error, error.get("code")
-    return songs_service.create_song(song)
+        return negotiate_content(error, error.get("code"))
+
+    try:
+        response_data, status_code = songs_service.create_song(song)
+        return negotiate_content(response_data, status_code)
+    except Exception as e:
+        error = SomethingWentWrongSchema().loads(json.dumps({"message": str(e)}))
+        return negotiate_content(error, error.get("code"))
 
 
 @auth.route('/songs/<song_id>', methods=["PUT"])
@@ -787,15 +806,23 @@ def update_song(song_id):
             application/yaml:
               schema: SomethingWentWrong
       tags:
-          - auth
           - songs
     """
     try:
         song = SongAddingSchema().loads(json_data=request.data.decode('utf-8'))
+    except JSONDecodeError:
+        error = UnprocessableEntitySchema().loads(json.dumps({"message": "Invalid JSON format"}))
+        return negotiate_content(error, error.get("code"))
     except ValidationError as e:
         error = UnprocessableEntitySchema().loads(json.dumps({"message": e.messages.__str__()}))
-        return error, error.get("code")
-    return songs_service.update_song(song_id, song)
+        return negotiate_content(error, error.get("code"))
+
+    try:
+        response_data, status_code = songs_service.update_song(song_id, song)
+        return negotiate_content(response_data, status_code)
+    except Exception as e:
+        error = SomethingWentWrongSchema().loads(json.dumps({"message": str(e)}))
+        return negotiate_content(error, error.get("code"))
 
 
 ####################################################################################

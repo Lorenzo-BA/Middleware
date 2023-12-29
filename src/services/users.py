@@ -30,7 +30,7 @@ def create_user(user_register):
     user_schema = UserSchema().loads(json.dumps(user_register), unknown=EXCLUDE)
 
     # on crée l'utilisateur côté API users
-    response = requests.request(method="POST", url=USERS_URL, json=user_schema)
+    response = requests.post(USERS_URL, json=user_schema)
     if response.status_code != 201:
         return response.json(), response.status_code
 
@@ -71,8 +71,6 @@ def update_user(user_id, user):
     try:
         users_repository.update_user(user_model)
     except exc.IntegrityError as e:
-        if "NOT NULL" in e.orig.args[0]:
-            raise UnprocessableEntity
         raise Conflict
 
     return response.json(), response.status_code

@@ -5,11 +5,11 @@ from src.schemas.song import *
 from src.services.ratings import get_ratings_by_song_id
 
 
-songs_url = "http://localhost:8079/songs/"  # URL de l'API songs (golang).
+SONGS_URL = "http://localhost:8079/songs/"  # URL de l'API songs (golang).
 
 
 def get_songs():
-    songs_response = requests.get(songs_url)
+    songs_response = requests.get(SONGS_URL)
     if songs_response.status_code != 200:
         return songs_response.json(), songs_response.status_code
 
@@ -31,7 +31,7 @@ def get_songs():
 
 
 def get_song(song_id):
-    song_response = requests.get(songs_url + song_id)
+    song_response = requests.get(SONGS_URL + song_id)
     if song_response.status_code != 200:
         return song_response.json(), song_response.status_code
 
@@ -48,7 +48,7 @@ def get_song(song_id):
 
 
 def create_song(song):
-    response = requests.post(songs_url, json=song)
+    response = requests.post(SONGS_URL, json=song)
     if response.status_code != 201:
         return response.json(), response.status_code
     created_song = response.json()
@@ -57,14 +57,14 @@ def create_song(song):
 
 
 def delete_song(song_id):
-    response = requests.delete(songs_url + song_id)
+    response = requests.delete(SONGS_URL + song_id)
     if response.status_code != 204:
         return response.json(), response.status_code
     return "", response.status_code
 
 
 def update_song(song_id, song):
-    response = requests.put(songs_url + song_id, json=song)
+    response = requests.put(SONGS_URL + song_id, json=song)
     if response.status_code != 200:
         return response.json(), response.status_code
 
@@ -75,5 +75,5 @@ def update_song(song_id, song):
 
 
 def song_exists(song_id):
-    response = requests.get(songs_url + song_id)
+    response = requests.get(SONGS_URL + song_id)
     return response.status_code == 200
