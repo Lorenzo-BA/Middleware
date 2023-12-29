@@ -95,7 +95,7 @@ func UpdateUser(user models.UserRequest, id uuid.UUID) (*models.User, error) {
 		return nil, err
 	}
 
-	_, err = db.Exec("UPDATE USERS SET name = ?, username = ? WHERE id = ?", user.Username, user.Name, id.String())
+	_, err = db.Exec("UPDATE USERS SET name = ?, username = ? WHERE id = ?", user.Name, user.Username, id.String())
 	helpers.CloseDB(db)
 	if err != nil {
 		return nil, err
