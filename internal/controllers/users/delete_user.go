@@ -14,7 +14,7 @@ import (
 // @Summary     Delete a user
 // @Description Delete the user with the specified ID.
 // @Param       id       path       string      true   "User UUID formatted ID"
-// @Success     204      {object}   models.User        "No Content"
+// @Success     204      							   "No Content"
 // @Failure     422      {object}   models.CustomError "Cannot parse id"
 // @Failure     500      {object}   models.CustomError "Something went wrong"
 // @Router      /users/{id}      [delete]

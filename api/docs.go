@@ -199,10 +199,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "204": {
-                        "description": "No Content",
-                        "schema": {
-                            "$ref": "#/definitions/models.User"
-                        }
+                        "description": "No Content"
                     },
                     "422": {
                         "description": "Cannot parse id",
