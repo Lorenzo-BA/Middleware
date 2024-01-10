@@ -199,10 +199,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "204": {
-                        "description": "No Content",
-                        "schema": {
-                            "type": "null"
-                        }
+                        "description": "No Content"
                     },
                     "422": {
                         "description": "Cannot parse id",

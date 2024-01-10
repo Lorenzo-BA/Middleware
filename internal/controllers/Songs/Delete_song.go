@@ -14,7 +14,7 @@ import (
 // @Summary     Delete a song
 // @Description Delete the song with the specified ID.
 // @Param       id       path       string      true   "Song UUID formatted ID"
-// @Success     204      null                          "No Content"
+// @Success     204                                    "No Content"
 // @Failure     422      {object}   models.CustomError "Cannot parse id"
 // @Failure     500      {object}   models.CustomError "Something went wrong"
 // @Router      /songs/{id}      [delete]
@@ -35,6 +35,6 @@ func DeleteSong(w http.ResponseWriter, r *http.Request) {
 		}
 		return
 	}
-	w.WriteHeader(http.StatusOK)
+	w.WriteHeader(http.StatusNoContent)
 	return
 }

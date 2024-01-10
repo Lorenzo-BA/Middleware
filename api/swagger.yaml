@@ -96,8 +96,6 @@ paths:
       responses:
         "204":
           description: No Content
-          schema:
-            type: "null"
         "422":
           description: Cannot parse id
           schema:
