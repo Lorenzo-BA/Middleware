@@ -1,0 +1,173 @@
+basePath: /
+definitions:
+  models.CustomError:
+    properties:
+      code:
+        default: 200
+        type: integer
+      message:
+        type: string
+    type: object
+  models.User:
+    properties:
+      id:
+        type: string
+      inscription_date:
+        type: string
+      name:
+        type: string
+      username:
+        type: string
+    type: object
+  models.UserRequest:
+    properties:
+      name:
+        type: string
+      username:
+        type: string
+    required:
+    - name
+    - username
+    type: object
+info:
+  contact:
+    email: lorenzo.BARBEY@etu.uca.fr
+    name: Lorenzo BARBEY
+  description: API to manage Users.
+  title: middleware/user
+  version: 1.0.0
+paths:
+  /users/:
+    get:
+      description: Get all users.
+      responses:
+        "200":
+          description: Array of User object
+          schema:
+            items:
+              $ref: '#/definitions/models.User'
+            type: array
+        "500":
+          description: Something went wrong
+          schema:
+            $ref: '#/definitions/models.CustomError'
+      summary: Get users.
+      tags:
+      - users
+    post:
+      description: Create a new user with the provided name.
+      parameters:
+      - description: User object to be created
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/models.UserRequest'
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.User'
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/models.CustomError'
+        "500":
+          description: Something went wrong
+          schema:
+            $ref: '#/definitions/models.CustomError'
+      summary: Create a new user
+      tags:
+      - users
+  /users/{id}:
+    delete:
+      description: Delete the user with the specified ID.
+      parameters:
+      - description: User UUID formatted ID
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "204":
+          description: No Content
+        "422":
+          description: Cannot parse id
+          schema:
+            $ref: '#/definitions/models.CustomError'
+        "500":
+          description: Something went wrong
+          schema:
+            $ref: '#/definitions/models.CustomError'
+      summary: Delete a user
+      tags:
+      - users
+    get:
+      description: Get the user with the specified ID.
+      parameters:
+      - description: User UUID formatted ID
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: User object
+          schema:
+            $ref: '#/definitions/models.User'
+        "404":
+          description: User not found
+          schema:
+            $ref: '#/definitions/models.CustomError'
+        "422":
+          description: Cannot parse id
+          schema:
+            $ref: '#/definitions/models.CustomError'
+        "500":
+          description: Something went wrong
+          schema:
+            $ref: '#/definitions/models.CustomError'
+      summary: Get a user.
+      tags:
+      - users
+    put:
+      description: Update the user with the specified ID.
+      parameters:
+      - description: User object to be updated
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/models.UserRequest'
+      - description: User UUID formatted ID
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: User object updated
+          schema:
+            $ref: '#/definitions/models.User'
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/models.CustomError'
+        "404":
+          description: User not found
+          schema:
+            $ref: '#/definitions/models.CustomError'
+        "422":
+          description: Cannot parse id
+          schema:
+            $ref: '#/definitions/models.CustomError'
+        "500":
+          description: Something went wrong
+          schema:
+            $ref: '#/definitions/models.CustomError'
+      summary: Update a user.
+      tags:
+      - user
+schemes:
+- http
+swagger: "2.0"

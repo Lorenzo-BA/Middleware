@@ -1,0 +1,229 @@
+basePath: /
+definitions:
+  models.CustomError:
+    properties:
+      code:
+        default: 200
+        type: integer
+      message:
+        type: string
+    type: object
+  models.Rating:
+    properties:
+      comment:
+        type: string
+      id:
+        type: string
+      rating:
+        type: integer
+      rating_date:
+        type: string
+      song_id:
+        type: string
+      user_id:
+        type: string
+    type: object
+  models.RatingCreateRequest:
+    properties:
+      comment:
+        type: string
+      rating:
+        maximum: 5
+        minimum: 1
+        type: integer
+      user_id:
+        type: string
+    required:
+    - comment
+    - rating
+    - user_id
+    type: object
+  models.RatingUpdateRequest:
+    properties:
+      comment:
+        type: string
+      rating:
+        maximum: 5
+        minimum: 1
+        type: integer
+    required:
+    - comment
+    - rating
+    type: object
+info:
+  contact:
+    email: lorenzo.BARBEY@etu.uca.fr
+    name: Lorenzo BARBEY
+  description: API to manage Ratings.
+  title: middleware/rating
+  version: 1.0.0
+paths:
+  /songs/{song_id}/ratings/:
+    get:
+      description: Get all ratings.
+      parameters:
+      - description: Song UUID formatted ID
+        in: path
+        name: songId
+        required: true
+        type: string
+      responses:
+        "200":
+          description: Array of Rating object
+          schema:
+            items:
+              $ref: '#/definitions/models.Rating'
+            type: array
+        "422":
+          description: Cannot parse id
+          schema:
+            $ref: '#/definitions/models.CustomError'
+        "500":
+          description: Something went wrong
+          schema:
+            $ref: '#/definitions/models.CustomError'
+      summary: Get ratings
+      tags:
+      - ratings
+    post:
+      description: Create a new rating with the provided content.
+      parameters:
+      - description: Song UUID formatted ID
+        in: path
+        name: songId
+        required: true
+        type: string
+      - description: Rating object to be created
+        in: body
+        name: rating
+        required: true
+        schema:
+          $ref: '#/definitions/models.RatingCreateRequest'
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.Rating'
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/models.CustomError'
+        "422":
+          description: Cannot parse id
+          schema:
+            $ref: '#/definitions/models.CustomError'
+        "500":
+          description: Something went wrong
+          schema:
+            $ref: '#/definitions/models.CustomError'
+      summary: Create a new rating
+      tags:
+      - ratings
+  /songs/{song_id}/ratings/{rating_id}:
+    delete:
+      description: Delete the rating with the specified ID.
+      parameters:
+      - description: Song UUID formatted ID
+        in: path
+        name: songId
+        required: true
+        type: string
+      - description: Rating UUID formatted ID
+        in: path
+        name: ratingId
+        required: true
+        type: string
+      responses:
+        "204":
+          description: No Content
+        "422":
+          description: Cannot parse id
+          schema:
+            $ref: '#/definitions/models.CustomError'
+        "500":
+          description: Something went wrong
+          schema:
+            $ref: '#/definitions/models.CustomError'
+      summary: Delete a rating
+      tags:
+      - ratings
+    get:
+      description: Get the rating with the specified ID.
+      parameters:
+      - description: Song UUID formatted ID
+        in: path
+        name: songId
+        required: true
+        type: string
+      - description: Rating UUID formatted ID
+        in: path
+        name: ratingId
+        required: true
+        type: string
+      responses:
+        "200":
+          description: Rating object
+          schema:
+            $ref: '#/definitions/models.Rating'
+        "404":
+          description: Rating not found
+          schema:
+            $ref: '#/definitions/models.CustomError'
+        "422":
+          description: Cannot parse id
+          schema:
+            $ref: '#/definitions/models.CustomError'
+        "500":
+          description: Something went wrong
+          schema:
+            $ref: '#/definitions/models.CustomError'
+      summary: Get a rating
+      tags:
+      - ratings
+  /songs/{song_id}/ratings/{ratingId}:
+    put:
+      description: Update the rating with the specified ID.
+      parameters:
+      - description: Rating object to be updated
+        in: body
+        name: rating
+        required: true
+        schema:
+          $ref: '#/definitions/models.RatingUpdateRequest'
+      - description: Song UUID formatted ID
+        in: path
+        name: songId
+        required: true
+        type: string
+      - description: Rating UUID formatted ID
+        in: path
+        name: ratingId
+        required: true
+        type: string
+      responses:
+        "200":
+          description: Rating object updated
+          schema:
+            $ref: '#/definitions/models.Rating'
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/models.CustomError'
+        "404":
+          description: Rating not found
+          schema:
+            $ref: '#/definitions/models.CustomError'
+        "422":
+          description: Cannot parse id
+          schema:
+            $ref: '#/definitions/models.CustomError'
+        "500":
+          description: Something went wrong
+          schema:
+            $ref: '#/definitions/models.CustomError'
+      summary: Update a rating.
+      tags:
+      - ratings
+schemes:
+- http
+swagger: "2.0"
