@@ -13,14 +13,14 @@
             <span class="fas fa-star" style="color: #ffff00"/></h3>
           <div class="card-body">
             <Vue3WaveAudioPlayer src="/src/assets/funk.mp3"/>
-            <br/>y
+            <br/>
             <h4>Comments:</h4>
             <ul>
               <li v-for="comment in song.ratings">
                 {{ comment.rating }}/5 <span class="fas fa-star"/> : {{ comment.comment }} <span
                   style="color: #aaa; font-size: 9px"> -- {{ comment.rating_date }} </span>
               </li>
-              <li v-if="!song.ratings || song.ratings.length === 0" style="color: #aaa">
+              <li v-if="!song.ratings || (song.ratings && song.ratings.length === 0)" style="color: #aaa">
                 No comment to display.
               </li>
             </ul>
